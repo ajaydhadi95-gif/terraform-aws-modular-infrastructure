@@ -599,18 +599,6 @@ MIT License © Ajay Dhadi
 
 ---
 
-## 🎬 Adding the Demo GIF
-
-This README references `assets/demo.gif` at the top. To add a real one:
-
-1. Record your terminal running through `terraform init → plan → apply` using a tool like [Terminalizer](https://terminalizer.com/), [asciinema](https://asciinema.org/) + [agg](https://github.com/asciinema/agg), or [VHS](https://github.com/charmbracelet/vhs).
-2. Export the recording as a `.gif`.
-3. Create an `assets/` folder in your repo root and place the file there as `assets/demo.gif`.
-4. Commit and push — GitHub will render it automatically at the top of this README.
-5. Also swap `<your-username>/<your-repo>` and `<your-linkedin>` placeholders above with your real handles so the badges resolve correctly.
-
----
-
 ## ⭐ Project Purpose
 
 This project was created as a hands-on AWS and Terraform learning project to understand how cloud infrastructure can be designed, provisioned, connected, and managed using **Infrastructure as Code**.
