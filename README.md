@@ -1,28 +1,54 @@
 <div align="center">
 
-# 🚀 Terraform AWS Infrastructure
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:7B42BC,100:FF9900&height=220&section=header&text=Terraform%20AWS%20Infrastructure&fontSize=42&fontColor=ffffff&animation=fadeIn&fontAlignY=38&desc=Infrastructure%20as%20Code%20%7C%20AWS%20%7C%20Terraform&descAlignY=58&descSize=18" width="100%"/>
 
-### Beginner-friendly Infrastructure as Code (IaC) project that provisions a complete AWS network + EC2 stack using Terraform
+<p>
+A beginner-friendly <strong>Infrastructure as Code (IaC)</strong> project that provisions a full AWS network + EC2 stack — VPC, subnet, Internet Gateway, route table, security group, and EC2 — entirely through Terraform modules.
+</p>
 
-![Terraform](https://readme-typing-svg.demolab.com?font=Fira+Code&size=18&pause=1000&color=7B42BC&center=true&vCenter=true&width=600&lines=terraform+init;terraform+plan;terraform+apply;Infrastructure+deployed+%E2%9C%85)
+<p>
+  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=18&pause=1000&color=7B42BC&center=true&vCenter=true&width=600&lines=terraform+init;terraform+plan;terraform+apply;Infrastructure+deployed+%E2%9C%85" alt="Typing SVG" />
+</p>
 
-[![Terraform](https://img.shields.io/badge/Terraform-7B42BC?style=for-the-badge&logo=terraform&logoColor=white)](https://www.terraform.io/)
-[![AWS](https://img.shields.io/badge/AWS-232F3E?style=for-the-badge&logo=amazonaws&logoColor=white)](https://aws.amazon.com/)
-[![Ubuntu](https://img.shields.io/badge/Ubuntu-E95420?style=for-the-badge&logo=ubuntu&logoColor=white)](https://ubuntu.com/)
-[![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](#-license)
+<p>
+  <img src="https://img.shields.io/badge/Terraform-7B42BC?style=for-the-badge&logo=terraform&logoColor=white" />
+  <img src="https://img.shields.io/badge/AWS-232F3E?style=for-the-badge&logo=amazonaws&logoColor=white" />
+  <img src="https://img.shields.io/badge/Ubuntu-E95420?style=for-the-badge&logo=ubuntu&logoColor=white" />
+  <img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" />
+</p>
+
+<p>
+  <img src="https://img.shields.io/github/stars/<your-username>/<your-repo>?style=flat-square&color=7B42BC" />
+  <img src="https://img.shields.io/github/forks/<your-username>/<your-repo>?style=flat-square&color=FF9900" />
+  <img src="https://img.shields.io/github/last-commit/<your-username>/<your-repo>?style=flat-square" />
+  <img src="https://img.shields.io/github/issues/<your-username>/<your-repo>?style=flat-square" />
+</p>
 
 </div>
 
 <p align="center">
-  <img src="assets/demo.gif" alt="Terraform apply demo" width="750">
+  <img src="assets/demo.gif" alt="Terraform apply demo" width="800">
 </p>
 
-> 💡 **Note:** Replace `assets/demo.gif` with a real screen recording of your `terraform apply` run (see [Adding the demo GIF](#-adding-the-demo-gif) below).
+<blockquote>
+💡 <strong>Note:</strong> Replace <code>&lt;your-username&gt;/&lt;your-repo&gt;</code> in the badge URLs above and <code>assets/demo.gif</code> with a real screen recording of your <code>terraform apply</code> run — see <a href="#-adding-the-demo-gif">Adding the Demo GIF</a>.
+</blockquote>
+
+<div align="center">
+
+[![Overview](https://img.shields.io/badge/📌-Overview-blue?style=flat-square)](#-project-overview)
+[![Architecture](https://img.shields.io/badge/🏗️-Architecture-blue?style=flat-square)](#️-architecture)
+[![Deployment](https://img.shields.io/badge/🚀-Deployment-blue?style=flat-square)](#-deployment-steps)
+[![Troubleshooting](https://img.shields.io/badge/🐛-Troubleshooting-blue?style=flat-square)](#-troubleshooting)
+[![Author](https://img.shields.io/badge/👨‍💻-Author-blue?style=flat-square)](#-author)
+
+</div>
 
 ---
 
 ## 📖 Table of Contents
 
+- [Features](#-features)
 - [Project Overview](#-project-overview)
 - [Architecture](#️-architecture)
 - [Technologies Used](#️-technologies-used)
@@ -40,8 +66,37 @@
 - [Security Best Practices](#-security-best-practices)
 - [What I Learned](#-what-i-learned-from-this-project)
 - [Skills Demonstrated](#-devops-skills-demonstrated)
+- [Contributing](#-contributing)
+- [License](#-license)
 - [Author](#-author)
 - [Adding the Demo GIF](#-adding-the-demo-gif)
+
+---
+
+## ✨ Features
+
+<table>
+<tr>
+<td width="33%" valign="top">
+
+### 🧩 Modular
+Clean, reusable Terraform modules for VPC, security groups, and EC2 — swap or extend any layer independently.
+
+</td>
+<td width="33%" valign="top">
+
+### 🔁 Repeatable
+Fully declarative — spin the entire stack up or tear it down with a single command, every time, identically.
+
+</td>
+<td width="33%" valign="top">
+
+### 🔐 Secure by design
+Least-privilege security group defaults, with clear guidance for locking SSH down to your own IP in production.
+
+</td>
+</tr>
+</table>
 
 ---
 
@@ -110,17 +165,21 @@ The goal of this project is to automate AWS infrastructure provisioning instead 
 
 ## 🛠️ Technologies Used
 
+<div align="center">
+
 | Technology | Purpose |
 | ---------------- | ------------------------- |
-| Terraform | Infrastructure as Code |
-| AWS VPC | Network creation |
-| AWS Subnet | Host EC2 resources |
-| Internet Gateway | Internet connectivity |
-| Route Table | Network routing |
-| Security Group | Network security |
-| AWS EC2 | Compute/server |
-| AWS CLI | AWS resource verification |
-| Git/GitHub | Version control |
+| ![Terraform](https://img.shields.io/badge/-Terraform-7B42BC?style=flat-square&logo=terraform&logoColor=white) | Infrastructure as Code |
+| ![AWS](https://img.shields.io/badge/-AWS%20VPC-232F3E?style=flat-square&logo=amazonaws&logoColor=white) | Network creation |
+| ![AWS](https://img.shields.io/badge/-AWS%20Subnet-232F3E?style=flat-square&logo=amazonaws&logoColor=white) | Host EC2 resources |
+| ![AWS](https://img.shields.io/badge/-Internet%20Gateway-232F3E?style=flat-square&logo=amazonaws&logoColor=white) | Internet connectivity |
+| ![AWS](https://img.shields.io/badge/-Route%20Table-232F3E?style=flat-square&logo=amazonaws&logoColor=white) | Network routing |
+| ![AWS](https://img.shields.io/badge/-Security%20Group-232F3E?style=flat-square&logo=amazonaws&logoColor=white) | Network security |
+| ![EC2](https://img.shields.io/badge/-AWS%20EC2-FF9900?style=flat-square&logo=amazonec2&logoColor=white) | Compute/server |
+| ![AWS CLI](https://img.shields.io/badge/-AWS%20CLI-232F3E?style=flat-square&logo=amazonaws&logoColor=white) | AWS resource verification |
+| ![Git](https://img.shields.io/badge/-Git%2FGitHub-181717?style=flat-square&logo=github&logoColor=white) | Version control |
+
+</div>
 
 ---
 
@@ -187,13 +246,13 @@ main.tf
 ## ☁️ AWS Configuration
 
 <table>
-<tr><th>Region</th><td><code>ap-south-1</code></td></tr>
-<tr><th>VPC CIDR</th><td><code>10.0.0.0/16</code> (<code>terraform-vpc</code>)</td></tr>
-<tr><th>Subnet CIDR</th><td><code>10.0.1.0/24</code> (<code>ap-south-1a</code>)</td></tr>
-<tr><th>Instance Type</th><td><code>t3.medium</code></td></tr>
-<tr><th>Key Pair</th><td><code>Dhadi</code></td></tr>
-<tr><th>AMI</th><td><code>ami-01a00762f46d584a1</code></td></tr>
-<tr><th>Security Group</th><td><code>terraform-ec2-sg</code> — Inbound TCP 22 (SSH)</td></tr>
+<tr><th align="left">Region</th><td><code>ap-south-1</code></td></tr>
+<tr><th align="left">VPC CIDR</th><td><code>10.0.0.0/16</code> (<code>terraform-vpc</code>)</td></tr>
+<tr><th align="left">Subnet CIDR</th><td><code>10.0.1.0/24</code> (<code>ap-south-1a</code>)</td></tr>
+<tr><th align="left">Instance Type</th><td><code>t3.medium</code></td></tr>
+<tr><th align="left">Key Pair</th><td><code>Dhadi</code></td></tr>
+<tr><th align="left">AMI</th><td><code>ami-01a00762f46d584a1</code></td></tr>
+<tr><th align="left">Security Group</th><td><code>terraform-ec2-sg</code> — Inbound TCP 22 (SSH)</td></tr>
 </table>
 
 > ⚠️ For production environments, restrict SSH access to your trusted IP address instead of `0.0.0.0/0`.
@@ -327,6 +386,7 @@ Ubuntu Server
 
 <details>
 <summary><strong>Issue 1: Security group and subnet belong to different networks</strong></summary>
+<br>
 
 **Cause:** The Security Group and Subnet belong to different VPCs.
 
@@ -350,6 +410,7 @@ resource "aws_security_group" "ec2_sg" {
 
 <details>
 <summary><strong>Issue 2: SSH connection timeout</strong></summary>
+<br>
 
 ```text
 ssh: connect to host <PUBLIC_IP> port 22: Connection timed out
@@ -370,6 +431,7 @@ Required route:
 
 <details>
 <summary><strong>Issue 3: Security group duplicate</strong></summary>
+<br>
 
 ```text
 InvalidGroup.Duplicate
@@ -489,6 +551,28 @@ Terraform
 
 ---
 
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are welcome!
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License** — feel free to use it for learning or as a starting point for your own infrastructure.
+
+```text
+MIT License © Ajay Dhadi
+```
+
+---
+
 ## 👨‍💻 Author
 
 <div align="center">
@@ -496,15 +580,20 @@ Terraform
 **Ajay Dhadi**
 *Aspiring AWS / DevOps Engineer*
 
-![AWS](https://img.shields.io/badge/AWS-232F3E?style=flat-square&logo=amazonaws&logoColor=white)
-![Terraform](https://img.shields.io/badge/Terraform-7B42BC?style=flat-square&logo=terraform&logoColor=white)
-![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat-square&logo=linux&logoColor=black)
-![Git](https://img.shields.io/badge/Git-F05032?style=flat-square&logo=git&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white)
-![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?style=flat-square&logo=kubernetes&logoColor=white)
-![Jenkins](https://img.shields.io/badge/Jenkins-D24939?style=flat-square&logo=jenkins&logoColor=white)
-![Ansible](https://img.shields.io/badge/Ansible-EE0000?style=flat-square&logo=ansible&logoColor=white)
-![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white)
+<img src="https://img.shields.io/badge/AWS-232F3E?style=flat-square&logo=amazonaws&logoColor=white" />
+<img src="https://img.shields.io/badge/Terraform-7B42BC?style=flat-square&logo=terraform&logoColor=white" />
+<img src="https://img.shields.io/badge/Linux-FCC624?style=flat-square&logo=linux&logoColor=black" />
+<img src="https://img.shields.io/badge/Git-F05032?style=flat-square&logo=git&logoColor=white" />
+<img src="https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white" />
+<img src="https://img.shields.io/badge/Kubernetes-326CE5?style=flat-square&logo=kubernetes&logoColor=white" />
+<img src="https://img.shields.io/badge/Jenkins-D24939?style=flat-square&logo=jenkins&logoColor=white" />
+<img src="https://img.shields.io/badge/Ansible-EE0000?style=flat-square&logo=ansible&logoColor=white" />
+<img src="https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white" />
+
+<br><br>
+
+<a href="https://github.com/<your-username>"><img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" /></a>
+<a href="https://www.linkedin.com/in/<your-linkedin>"><img src="https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" /></a>
 
 </div>
 
@@ -518,6 +607,7 @@ This README references `assets/demo.gif` at the top. To add a real one:
 2. Export the recording as a `.gif`.
 3. Create an `assets/` folder in your repo root and place the file there as `assets/demo.gif`.
 4. Commit and push — GitHub will render it automatically at the top of this README.
+5. Also swap `<your-username>/<your-repo>` and `<your-linkedin>` placeholders above with your real handles so the badges resolve correctly.
 
 ---
 
@@ -526,3 +616,7 @@ This README references `assets/demo.gif` at the top. To add a real one:
 This project was created as a hands-on AWS and Terraform learning project to understand how cloud infrastructure can be designed, provisioned, connected, and managed using **Infrastructure as Code**.
 
 If you find this project useful, feel free to ⭐ the repository.
+
+<div align="center">
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:FF9900,100:7B42BC&height=100&section=footer" width="100%"/>
+</div>
