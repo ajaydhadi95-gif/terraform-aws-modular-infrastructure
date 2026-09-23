@@ -17,22 +17,11 @@ A beginner-friendly <strong>Infrastructure as Code (IaC)</strong> project that p
   <img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" />
 </p>
 
-<p>
-  <img src="https://img.shields.io/github/stars/<your-username>/<your-repo>?style=flat-square&color=7B42BC" />
-  <img src="https://img.shields.io/github/forks/<your-username>/<your-repo>?style=flat-square&color=FF9900" />
-  <img src="https://img.shields.io/github/last-commit/<your-username>/<your-repo>?style=flat-square" />
-  <img src="https://img.shields.io/github/issues/<your-username>/<your-repo>?style=flat-square" />
-</p>
-
-</div>
 
 <p align="center">
   <img src="assets/demo.gif" alt="Terraform apply demo" width="800">
 </p>
 
-<blockquote>
-💡 <strong>Note:</strong> Replace <code>&lt;your-username&gt;/&lt;your-repo&gt;</code> in the badge URLs above and <code>assets/demo.gif</code> with a real screen recording of your <code>terraform apply</code> run — see <a href="#-adding-the-demo-gif">Adding the Demo GIF</a>.
-</blockquote>
 
 <div align="center">
 
