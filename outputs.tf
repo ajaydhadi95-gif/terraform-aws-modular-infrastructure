@@ -12,3 +12,11 @@ output "security_group_id" {
   description = "Security Group ID"
   value       = module.security_group.security_group_id
 }
+
+output "vpc_id" {
+  value = module.vpc.vpc_id
+}
+
+output "vpc_cidr" {
+  value = module.vpc.vpc_cidr
+}

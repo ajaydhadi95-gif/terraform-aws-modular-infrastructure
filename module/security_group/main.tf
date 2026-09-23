@@ -1,13 +1,15 @@
 resource "aws_security_group" "ec2_sg" {
-  name        = var.security_group_name
-  description = var.security_group_description
+  name        = "terraform-ec2-sg"
+  description = "Allow SSH access"
+
+  vpc_id = var.vpc_id
 
   ingress {
     description = "SSH"
-    from_port   = var.ssh_port
-    to_port     = var.ssh_port
+    from_port   = 22
+    to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = var.ssh_cidr
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
@@ -18,6 +20,6 @@ resource "aws_security_group" "ec2_sg" {
   }
 
   tags = {
-    Name = var.security_group_name
+    Name = "terraform-ec2-sg"
   }
 }

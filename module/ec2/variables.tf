@@ -18,3 +18,7 @@ variable "key_name" {
   type    = string
   default = "Dhadi"
 }
+
+variable "subnet_id" {
+  type = string
+}
