@@ -552,13 +552,7 @@ Contributions, issues, and feature requests are welcome!
 
 ---
 
-## 📄 License
 
-This project is licensed under the **MIT License** — feel free to use it for learning or as a starting point for your own infrastructure.
-
-```text
-MIT License © Ajay Dhadi
-```
 
 ---
 
