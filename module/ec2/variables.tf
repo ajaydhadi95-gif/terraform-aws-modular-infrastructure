@@ -10,7 +10,15 @@ variable "instance_name" {
   type = string
 }
 
-variable "security_group_id" {
+variable "frontend_sg_id" {
+  type = string
+}
+
+variable "backend_sg_id" {
+  type = string
+}
+
+variable "database_sg_id" {
   type = string
 }
 
@@ -20,5 +28,13 @@ variable "key_name" {
 }
 
 variable "subnet_id" {
+  type = string
+}
+
+variable "private_subnet_1_id" {
+  type = string
+}
+
+variable "private_subnet_2_id" {
   type = string
 }
