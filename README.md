@@ -272,21 +272,7 @@ Confirm with `yes` when prompted.
 
 ---
 
-## 📈 Future Improvements
 
-- [ ] S3 Remote Backend + Terraform State Locking
-- [ ] Application Load Balancer
-- [ ] Auto Scaling Group + Launch Template
-- [ ] IAM Roles
-- [ ] CloudWatch Monitoring
-- [ ] VPC Flow Logs
-- [ ] AWS Systems Manager
-- [ ] Amazon EKS
-- [ ] RDS in private subnets
-- [ ] CI/CD with Jenkins or GitHub Actions
-- [ ] Full Terraform CI/CD pipeline
-
----
 
 ## 🎯 Learning Objectives
 
