@@ -1,16 +1,16 @@
 <div align="center">
 
-# 🌐 Terraform AWS VPC Infrastructure
+# 🚀 3-Tier AWS Application Architecture using Terraform
 
-### Production-style AWS networking, built the Infrastructure-as-Code way
+### Frontend • Backend • Database — segmented, secured, and provisioned as code
 
-<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=20&pause=1000&color=FF9900&center=true&vCenter=true&width=560&lines=Custom+VPC+%7C+Public+%26+Private+Subnets;NAT+Gateway+%7C+Multi-AZ+Design;Modular+%26+Reusable+Terraform+Code;Deployed+on+AWS+ap-south-1+(Mumbai)" alt="Typing SVG" />
+<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=20&pause=1000&color=FF9900&center=true&vCenter=true&width=600&lines=Public+Frontend+%7C+Private+Backend+%2B+Database;Least-Privilege+Security+Groups;Modular+%26+Reusable+Terraform+Code;Deployed+on+AWS+ap-south-1+(Mumbai)" alt="Typing SVG" />
 
 <br/>
 
 ![Terraform](https://img.shields.io/badge/Terraform-IaC-844FBA?style=for-the-badge&logo=terraform&logoColor=white)
 ![AWS](https://img.shields.io/badge/AWS-Cloud-FF9900?style=for-the-badge&logo=amazonaws&logoColor=white)
-![Region](https://img.shields.io/badge/Region-ap--south--1-232F3E?style=for-the-badge&logo=amazonaws&logoColor=white)
+![Architecture](https://img.shields.io/badge/Architecture-3--Tier-0EA5E9?style=for-the-badge)
 ![Status](https://img.shields.io/badge/Status-In%20Progress-yellow?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
 
@@ -21,68 +21,129 @@
 ## 📖 Table of Contents
 
 - [Overview](#-project-overview)
-- [Architecture](#️-project-architecture)
+- [Architecture](#️-architecture)
+- [Network Architecture](#-network-architecture)
+- [Application Traffic Flow](#-application-traffic-flow)
+- [Security Group Design](#-security-group-design)
 - [Tech Stack](#️-technologies-used)
-- [Project Structure](#-project-structure)
-- [Network Configuration](#-network-configuration)
-- [Security Design](#-security-design)
-- [Terraform Modules](#-terraform-modules)
+- [Project Structure](#-terraform-project-structure)
+- [AWS Components](#️-aws-components)
 - [Deployment](#-terraform-deployment)
 - [Verify Infrastructure](#-verify-infrastructure)
 - [Destroy Infrastructure](#-destroy-infrastructure)
-- [Best Practices](#-terraform-best-practices)
-- [Future Improvements](#-future-improvements)
-- [Learning Objectives](#-learning-objectives)
+- [Security Principles](#-security-principles)
+- [Production Improvements](#-production-improvements)
+- [Project Objectives](#-project-objectives)
 - [Author](#-author)
 
 ---
 
 ## 📌 Project Overview
 
-This project provisions AWS infrastructure using **Terraform** with a modular and reusable architecture.
+This project demonstrates a **3-Tier Application Architecture on AWS** using **Terraform**.
 
-The objective is to build a production-style AWS networking environment with:
+The application is divided into three separate layers:
 
-- ✅ Custom VPC
-- ✅ Public and Private Subnets
-- ✅ Multiple Availability Zones
-- ✅ Internet Gateway
-- ✅ NAT Gateway
-- ✅ Route Tables
-- ✅ Security Groups
-- ✅ EC2 Instances
-- ✅ Reusable Terraform Modules
+| # | Layer | Placement |
+|---|---|---|
+| 1️⃣ | **Frontend** | Public Subnet |
+| 2️⃣ | **Backend** | Private Subnet |
+| 3️⃣ | **Database** | Private Subnet |
 
-The infrastructure is designed using **Infrastructure as Code (IaC)** principles — every resource is versioned, repeatable, and destroyable with a single command.
+The architecture follows network segmentation principles: the frontend is reachable from the Internet, while backend and database resources stay inside private subnets.
 
 ---
 
-## 🏗️ Project Architecture
+## 🏗️ Architecture
 
 ```text
                               🌍 Internet
                                   │
+                             80 / 443
+                                  ▼
+                         ┌─────────────────┐
+                         │    FRONTEND     │
+                         │  10.0.1.0/24    │
+                         │  Public Subnet  │
+                         └────────┬────────┘
                                   │
-                          🚪 Internet Gateway
+                               8080
+                                  ▼
+                         ┌─────────────────┐
+                         │     BACKEND     │
+                         │  10.0.11.0/24   │
+                         │ Private Subnet  │
+                         └────────┬────────┘
                                   │
-        ┌─────────────────────────┴─────────────────────────┐
-        │                     VPC — 10.0.0.0/16               │
-        │                                                     │
-        │   ┌───────────────────┐     ┌───────────────────┐   │
-        │   │  Public  AZ-a     │     │  Public  AZ-b     │   │
-        │   │  10.0.1.0/24      │     │  10.0.2.0/24      │   │
-        │   │                   │     │                   │   │
-        │   │   🔁 NAT Gateway  │     │                   │   │
-        │   └─────────┬─────────┘     └─────────┬─────────┘   │
-        │             │                          │             │
-        │   ┌─────────┴─────────┐     ┌─────────┴─────────┐   │
-        │   │  Private AZ-a     │     │  Private AZ-b     │   │
-        │   │  10.0.11.0/24     │     │  10.0.12.0/24     │   │
-        │   │                   │     │                   │   │
-        │   │   🖥️ EC2 Instance │     │   🖥️ EC2 Instance │   │
-        │   └───────────────────┘     └───────────────────┘   │
-        └─────────────────────────────────────────────────────┘
+                               3306
+                                  ▼
+                         ┌─────────────────┐
+                         │    DATABASE     │
+                         │  10.0.12.0/24   │
+                         │ Private Subnet  │
+                         └─────────────────┘
 ```
+
+---
+
+## 🌐 Network Architecture
+
+```text
+VPC — 10.0.0.0/16
+│
+├── 🌐 Public Subnet
+│   └── Frontend        10.0.1.0/24
+│
+├── 🔒 Private Subnet
+│   └── Backend         10.0.11.0/24
+│
+└── 🔒 Private Subnet
+    └── Database         10.0.12.0/24
+```
+
+---
+
+## 🔄 Application Traffic Flow
+
+| Step | Flow | Port | Notes |
+|---|---|---|---|
+| 1 | Internet → Frontend | `80 / 443` | Frontend sits in a **public subnet** to receive user traffic |
+| 2 | Frontend → Backend | `8080` | Backend sits in a **private subnet**, not exposed to the Internet |
+| 3 | Backend → Database | `3306` | Standard MySQL port; database sits in a **private subnet** |
+
+---
+
+## 🔐 Security Group Design
+
+Security Groups allow only the traffic each layer actually needs.
+
+### 🌐 Frontend Security Group
+
+```text
+Inbound:
+  HTTP   → 80    (0.0.0.0/0)
+  HTTPS  → 443   (0.0.0.0/0)
+```
+
+### 🔒 Backend Security Group
+
+```text
+Inbound:
+  TCP → 8080
+  Source → Frontend Security Group
+```
+
+> 🚫 Avoid `0.0.0.0/0 → 8080` — the backend must never be directly reachable from the Internet.
+
+### 🔒 Database Security Group
+
+```text
+Inbound:
+  TCP → 3306
+  Source → Backend Security Group
+```
+
+> 🚫 Avoid `0.0.0.0/0 → 3306` — the database must never be publicly accessible.
 
 ---
 
@@ -94,20 +155,21 @@ The infrastructure is designed using **Infrastructure as Code (IaC)** principles
 ![AWS](https://img.shields.io/badge/AWS-FF9900?style=flat-square&logo=amazonaws&logoColor=white)
 ![VPC](https://img.shields.io/badge/Amazon%20VPC-232F3E?style=flat-square&logo=amazonaws&logoColor=white)
 ![EC2](https://img.shields.io/badge/Amazon%20EC2-FF9900?style=flat-square&logo=amazonec2&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=flat-square&logo=mysql&logoColor=white)
 ![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat-square&logo=linux&logoColor=black)
 ![Git](https://img.shields.io/badge/Git-F05032?style=flat-square&logo=git&logoColor=white)
 ![GitHub](https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=github&logoColor=white)
 
 </div>
 
-- Amazon VPC, Amazon EC2, Security Groups
-- Internet Gateway, NAT Gateway, Route Tables
-- Terraform (modular design)
+- Amazon VPC, EC2, Security Groups, Subnets, Route Tables
+- Internet Gateway, NAT Gateway
+- Frontend Application, Backend Application, MySQL
 - Linux, Git & GitHub
 
 ---
 
-## 📂 Project Structure
+## 📂 Terraform Project Structure
 
 ```text
 terraform/
@@ -117,8 +179,8 @@ terraform/
 ├── variables.tf
 ├── outputs.tf
 ├── terraform.tfvars
-├── .gitignore
 ├── README.md
+├── .gitignore
 │
 └── module/
     │
@@ -140,105 +202,64 @@ terraform/
 
 ---
 
-## 🌎 AWS Region
+## ☁️ AWS Components
 
-> **ap-south-1** — Mumbai Region 🇮🇳
-
----
-
-## 🌐 Network Configuration
-
-### VPC
-
-| Attribute | Value |
-|---|---|
-| CIDR Block | `10.0.0.0/16` |
-
-### Public Subnets
-
-| Availability Zone | CIDR |
-|---|---|
-| ap-south-1a | `10.0.1.0/24` |
-| ap-south-1b | `10.0.2.0/24` |
-
-### Private Subnets
-
-| Availability Zone | CIDR |
-|---|---|
-| ap-south-1a | `10.0.11.0/24` |
-| ap-south-1b | `10.0.12.0/24` |
-
----
-
-## 🔐 Security Design
-
-The infrastructure separates public and private resources for defense in depth.
-
-| Layer | Internet Access |
-|---|---|
-| 🌐 Public Subnet | Routed via Internet Gateway |
-| 🔒 Private Subnet | No direct inbound access — outbound only via NAT Gateway |
-
-### Security Groups
-
-| Port | Purpose |
-|---|---|
-| 22 | SSH |
-| 80 | HTTP |
-| 443 | HTTPS |
-
-> Only the ports required by the application should be opened.
-
----
-
-## 📦 Terraform Modules
-
-| Module | Responsibilities |
-|---|---|
-| **`vpc`** | VPC, public/private subnets, Internet Gateway, NAT Gateway, route tables & routes |
-| **`security_group`** | EC2 security groups, inbound/outbound rules |
-| **`ec2`** | Instance configuration, AMI, instance type, key pair, subnet placement, SG association |
+| Layer | Component | Network |
+|---|---|---|
+| Frontend | EC2 / Application | Public Subnet |
+| Backend | EC2 / Application | Private Subnet |
+| Database | MySQL | Private Subnet |
+| Network | VPC | `10.0.0.0/16` |
+| Frontend | Port 80/443 | Internet → Frontend |
+| Backend | Port 8080 | Frontend → Backend |
+| Database | Port 3306 | Backend → Database |
 
 ---
 
 ## 🚀 Terraform Deployment
 
 ```bash
-# 1. Initialize Terraform
+# Initialize Terraform
 terraform init
 
-# 2. Format Terraform files
+# Format Terraform files
 terraform fmt -recursive
 
-# 3. Validate configuration
+# Validate configuration
 terraform validate
 
-# 4. Create execution plan
+# Create Terraform plan
 terraform plan
 
-# 5. Apply infrastructure
+# Deploy infrastructure
 terraform apply
 ```
 
-Type `yes` when Terraform asks for confirmation. ✅
+Confirm with `yes` when prompted. ✅
 
 ---
 
 ## 🔍 Verify Infrastructure
 
-After deployment, verify resources from the **AWS Console**:
-
 ```text
 VPC
-├── Subnets
-├── Route Tables
+│
+├── Public Subnet
+│   └── Frontend
+│
+├── Private Subnet
+│   └── Backend
+│
+├── Private Subnet
+│   └── Database
+│
 ├── Internet Gateway
 ├── NAT Gateway
-├── Security Groups
-└── EC2 Instances
+├── Route Tables
+└── Security Groups
 ```
 
-Or verify via the Terraform state:
+Or check via Terraform state:
 
 ```bash
 terraform state list
@@ -254,35 +275,70 @@ terraform destroy
 
 Confirm with `yes` when prompted.
 
-> ⚠️ **Warning:** `terraform destroy` permanently removes all Terraform-managed resources. Use with care.
+> ⚠️ **Warning:** `terraform destroy` permanently removes all Terraform-managed AWS resources.
 
 ---
 
-## 🔒 Terraform Best Practices
+## 🔒 Security Principles
 
-- 🧱 Modular Terraform structure with reusable modules
-- 🔧 Variables instead of hard-coded values
-- 📤 Outputs for important resource information
-- 🌐 Separate public and private networking
-- 🗺️ Multiple Availability Zones for resilience
-- 🛡️ Security Groups for network access control
-- ✅ `terraform fmt` and `terraform validate` before every apply
-- 🔀 Git version control with `.gitignore` for Terraform artifacts
-- 🚫 No AWS credentials stored in Terraform files
+- 🌐 Frontend is publicly accessible
+- 🔒 Backend is isolated in a private subnet
+- 🔒 Database is isolated in a private subnet
+- 🔁 Backend accepts traffic **only** from the frontend layer
+- 🔁 Database accepts traffic **only** from the backend layer
+- 🚫 Port `3306` is never exposed to the Internet
+- 🚫 Port `8080` is never exposed to the Internet
+- 🛡️ Security Groups enforce least-privilege network access
+- 🔀 Private resources reach the Internet (for updates etc.) only via NAT Gateway
 
 ---
 
-
-
-## 🎯 Learning Objectives
+## 📈 Production Improvements
 
 ```text
-AWS Networking → VPC → Subnets → Route Tables
-→ Internet Gateway / NAT Gateway → Security Groups
-→ EC2 → Terraform Modules → Infrastructure as Code
+Internet
+   │
+   ▼
+Route 53
+   │
+   ▼
+Application Load Balancer
+   │
+   ▼
+Frontend / Web Tier
+   │
+   ▼
+Backend / Application Tier
+   │
+   ▼
+RDS MySQL
 ```
 
-This project demonstrates practical, hands-on knowledge of building secure, modular AWS networking with Terraform.
+- [ ] Application Load Balancer
+- [ ] Auto Scaling Group
+- [ ] Multiple Availability Zones
+- [ ] Amazon RDS
+- [ ] Route 53
+- [ ] ACM SSL Certificate
+- [ ] CloudWatch + VPC Flow Logs
+- [ ] IAM Roles
+- [ ] NAT Gateway per AZ
+- [ ] S3 Terraform Remote Backend
+- [ ] CI/CD with Jenkins
+- [ ] Docker & Kubernetes / EKS
+
+---
+
+## 🎯 Project Objectives
+
+- Understand AWS VPC networking
+- Implement public and private subnet architecture
+- Deploy a 3-tier application
+- Understand traffic flow between application layers
+- Configure Security Groups using least-privilege access
+- Provision infrastructure using Terraform
+- Use reusable Terraform modules
+- Practice production-style AWS architecture
 
 ---
 
@@ -304,7 +360,7 @@ AWS | DevOps | Terraform | Linux | Docker | Kubernetes
 
 ## 📌 Project Status
 
-**🚧 In Progress** — the infrastructure is being developed incrementally toward a production-style AWS architecture using Terraform.
+**🚧 In Progress** — being developed as a Terraform-based **3-Tier AWS Application Architecture** with separate frontend, backend, and database network layers.
 
 <div align="center">
 
