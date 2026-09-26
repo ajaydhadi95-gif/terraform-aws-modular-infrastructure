@@ -1,18 +1,28 @@
 <div align="center">
 
-# 🚀 3-Tier AWS Application Architecture using Terraform
+# 🏗️ AWS Multi-AZ Infrastructure with Terraform & Ansible
 
-### Frontend • Backend • Database — segmented, secured, and provisioned as code
+### Production-style, multi-tier, multi-AZ AWS infrastructure — provisioned with Terraform, configured with Ansible.
 
-<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=20&pause=1000&color=FF9900&center=true&vCenter=true&width=600&lines=Public+Frontend+%7C+Private+Backend+%2B+Database;Least-Privilege+Security+Groups;Modular+%26+Reusable+Terraform+Code;Deployed+on+AWS+ap-south-1+(Mumbai)" alt="Typing SVG" />
+[![Terraform](https://img.shields.io/badge/Terraform-%235835CC.svg?style=for-the-badge&logo=terraform&logoColor=white)](https://www.terraform.io/)
+[![AWS](https://img.shields.io/badge/AWS-%23FF9900.svg?style=for-the-badge&logo=amazon-aws&logoColor=white)](https://aws.amazon.com/)
+[![Ansible](https://img.shields.io/badge/Ansible-%231A1918.svg?style=for-the-badge&logo=ansible&logoColor=white)](https://www.ansible.com/)
+[![MySQL](https://img.shields.io/badge/MySQL-%2300f.svg?style=for-the-badge&logo=mysql&logoColor=white)](https://www.mysql.com/)
+[![Nginx](https://img.shields.io/badge/nginx-%23009639.svg?style=for-the-badge&logo=nginx&logoColor=white)](https://nginx.org/)
+[![Ubuntu](https://img.shields.io/badge/Ubuntu-E95420?style=for-the-badge&logo=ubuntu&logoColor=white)](https://ubuntu.com/)
 
-<br/>
+[![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](#-license)
+[![Made with IaC](https://img.shields.io/badge/Infrastructure-as%20Code-blueviolet?style=flat-square)](#)
+[![Status](https://img.shields.io/badge/status-active%20development-yellow?style=flat-square)](#-project-status)
 
-![Terraform](https://img.shields.io/badge/Terraform-IaC-844FBA?style=for-the-badge&logo=terraform&logoColor=white)
-![AWS](https://img.shields.io/badge/AWS-Cloud-FF9900?style=for-the-badge&logo=amazonaws&logoColor=white)
-![Architecture](https://img.shields.io/badge/Architecture-3--Tier-0EA5E9?style=for-the-badge)
-![Status](https://img.shields.io/badge/Status-In%20Progress-yellow?style=for-the-badge)
-![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
+<!--
+  🎬 DEMO GIF
+  Record a short terminal walkthrough of `terraform apply` + the app coming
+  online with a tool like Terminalizer, asciinema+agg, or ScreenToGif, then
+  drop the file in a `docs/` or `assets/` folder and point the line below at
+  it, e.g. docs/demo.gif. GitHub will render it inline automatically.
+-->
+<!-- ![Demo](docs/demo.gif) -->
 
 </div>
 
@@ -22,66 +32,72 @@
 
 - [Overview](#-project-overview)
 - [Architecture](#️-architecture)
-- [Network Architecture](#-network-architecture)
-- [Application Traffic Flow](#-application-traffic-flow)
-- [Security Group Design](#-security-group-design)
-- [Tech Stack](#️-technologies-used)
-- [Project Structure](#-terraform-project-structure)
-- [AWS Components](#️-aws-components)
-- [Deployment](#-terraform-deployment)
-- [Verify Infrastructure](#-verify-infrastructure)
-- [Destroy Infrastructure](#-destroy-infrastructure)
-- [Security Principles](#-security-principles)
-- [Production Improvements](#-production-improvements)
-- [Project Objectives](#-project-objectives)
+- [Network Design](#-network-architecture)
+- [EC2 Layout](#️-ec2-architecture)
+- [Security Groups](#-security-group-architecture)
+- [Traffic Flow](#-application-traffic-flow)
+- [Terraform Structure](#️-terraform-architecture)
+- [Configuration](#️-terraform-configuration)
+- [Deployment](#-deploy-infrastructure)
+- [Ansible Configuration](#-ansible-configuration)
+- [MySQL Setup](#️-mysql-configuration)
+- [Workflow](#-terraform--ansible-workflow)
+- [Multi-AZ Design](#-multi-az-design)
+- [HA Notes](#️-database-high-availability-note)
+- [Production Roadmap](#-production-improvements)
+- [Infrastructure Summary](#-current-infrastructure-summary)
+- [Learning Objectives](#-learning-objectives)
+- [Useful Commands](#-useful-terraform-commands)
+- [Project Status](#-project-status)
 - [Author](#-author)
 
 ---
 
 ## 📌 Project Overview
 
-This project demonstrates a **3-Tier Application Architecture on AWS** using **Terraform**.
+This project demonstrates how to build a **multi-AZ, multi-tier AWS infrastructure using Terraform** and configure the provisioned EC2 instances using **Ansible**.
 
-The application is divided into three separate layers:
+The infrastructure is designed with separate **Frontend, Backend, and Database tiers** distributed across two Availability Zones for better availability and fault isolation.
 
-| # | Layer | Placement |
-|---|---|---|
-| 1️⃣ | **Frontend** | Public Subnet |
-| 2️⃣ | **Backend** | Private Subnet |
-| 3️⃣ | **Database** | Private Subnet |
+| | |
+|---|---|
+| **Cloud** | AWS (`ap-south-1`) |
+| **Provisioning** | Terraform (modular) |
+| **Configuration** | Ansible |
+| **Tiers** | Frontend (Nginx) → Backend (App) → Database (MySQL) |
+| **Availability** | 2 Availability Zones, 6 EC2 instances |
 
-The architecture follows network segmentation principles: the frontend is reachable from the Internet, while backend and database resources stay inside private subnets.
+### Technologies Used
+
+`AWS` · `Terraform` · `Ansible` · `EC2` · `VPC` · `Internet Gateway` · `Subnets` · `Route Tables` · `Security Groups` · `MySQL` · `Linux / Ubuntu` · `Git & GitHub`
 
 ---
 
 ## 🏗️ Architecture
 
-```text
-                              🌍 Internet
-                                  │
-                             80 / 443
-                                  ▼
-                         ┌─────────────────┐
-                         │    FRONTEND     │
-                         │  10.0.1.0/24    │
-                         │  Public Subnet  │
-                         └────────┬────────┘
-                                  │
-                               8080
-                                  ▼
-                         ┌─────────────────┐
-                         │     BACKEND     │
-                         │  10.0.11.0/24   │
-                         │ Private Subnet  │
-                         └────────┬────────┘
-                                  │
-                               3306
-                                  ▼
-                         ┌─────────────────┐
-                         │    DATABASE     │
-                         │  10.0.12.0/24   │
-                         │ Private Subnet  │
-                         └─────────────────┘
+```mermaid
+flowchart TB
+    INET([🌐 Internet]) --> IGW[Internet Gateway]
+    IGW --> VPC[VPC 10.0.0.0/16]
+
+    subgraph AZA[" 🟦 AZ: ap-south-1a "]
+        FE1[Frontend EC2-1<br/>Nginx<br/>10.0.1.0/24]
+        BE1[Backend EC2-1<br/>App<br/>10.0.11.0/24]
+        DB1[Database EC2-1<br/>MySQL<br/>10.0.21.0/24]
+        FE1 -->|TCP 8080| BE1
+        BE1 -->|TCP 3306| DB1
+    end
+
+    subgraph AZB[" 🟩 AZ: ap-south-1b "]
+        FE2[Frontend EC2-2<br/>Nginx<br/>10.0.2.0/24]
+        BE2[Backend EC2-2<br/>App<br/>10.0.12.0/24]
+        DB2[Database EC2-2<br/>MySQL<br/>10.0.22.0/24]
+        FE2 -->|TCP 8080| BE2
+        BE2 -->|TCP 3306| DB2
+    end
+
+    VPC --> AZA
+    VPC --> AZB
 ```
 
 ---
@@ -89,281 +105,469 @@ The architecture follows network segmentation principles: the frontend is reacha
 ## 🌐 Network Architecture
 
 ```text
-VPC — 10.0.0.0/16
-│
-├── 🌐 Public Subnet
-│   └── Frontend        10.0.1.0/24
-│
-├── 🔒 Private Subnet
-│   └── Backend         10.0.11.0/24
-│
-└── 🔒 Private Subnet
-    └── Database         10.0.12.0/24
+VPC CIDR: 10.0.0.0/16
+Region:   ap-south-1
+AZs:      ap-south-1a, ap-south-1b
 ```
+
+### Subnet Design
+
+| Tier               | AZ-a             | AZ-b             |
+|--------------------|------------------|------------------|
+| 🌍 Public           | `10.0.1.0/24`   | `10.0.2.0/24`   |
+| 🔒 Private / Backend | `10.0.11.0/24`  | `10.0.12.0/24`  |
+| 🗄️ Database         | `10.0.21.0/24`  | `10.0.22.0/24`  |
+
+- **Public subnets** host the frontend EC2 instances behind the Internet Gateway.
+- **Private subnets** host backend application servers, reachable only from the frontend tier.
+- **Database subnets** host MySQL, reachable only from the backend tier.
+
+---
+
+## 🖥️ EC2 Architecture
+
+This project provisions **6 EC2 instances** across two Availability Zones:
+
+| Role | Instance | AZ | Subnet |
+|---|---|---|---|
+| Frontend | `frontend-ec2-1` | ap-south-1a | `10.0.1.0/24` |
+| Frontend | `frontend-ec2-2` | ap-south-1b | `10.0.2.0/24` |
+| Backend | `backend-ec2-1` | ap-south-1a | `10.0.11.0/24` |
+| Backend | `backend-ec2-2` | ap-south-1b | `10.0.12.0/24` |
+| Database | `database-ec2-1` | ap-south-1a | `10.0.21.0/24` |
+| Database | `database-ec2-2` | ap-south-1b | `10.0.22.0/24` |
+
+> Database EC2 instances run **MySQL**, installed and configured via Ansible.
+
+---
+
+## 🔐 Security Group Architecture
+
+```mermaid
+flowchart LR
+    NET([Internet]) -->|22, 80, 443| FSG[Frontend SG]
+    FSG -->|TCP 8080| BSG[Backend SG]
+    BSG -->|TCP 3306| DSG[Database SG]
+```
+
+| Security Group | Inbound Rules | Source |
+|---|---|---|
+| **Frontend SG** | `22` SSH, `80` HTTP, `443` HTTPS | Internet |
+| **Backend SG** | `22` SSH, `8080` App traffic | Frontend SG |
+| **Database SG** | `22` SSH, `3306` MySQL | Backend SG |
+
+This design uses **Security Group-to-Security Group** communication instead of relying on fixed private IP addresses — each tier only accepts traffic from the SG of the tier in front of it.
 
 ---
 
 ## 🔄 Application Traffic Flow
 
-| Step | Flow | Port | Notes |
-|---|---|---|---|
-| 1 | Internet → Frontend | `80 / 443` | Frontend sits in a **public subnet** to receive user traffic |
-| 2 | Frontend → Backend | `8080` | Backend sits in a **private subnet**, not exposed to the Internet |
-| 3 | Backend → Database | `3306` | Standard MySQL port; database sits in a **private subnet** |
+```mermaid
+sequenceDiagram
+    participant U as 🌐 Internet
+    participant IGW as Internet Gateway
+    participant FE as Frontend EC2 (Nginx)
+    participant BE as Backend EC2 (App)
+    participant DB as Database EC2 (MySQL)
+
+    U->>IGW: HTTP/HTTPS request
+    IGW->>FE: Forward request
+    FE->>BE: TCP 8080
+    BE->>DB: TCP 3306
+    DB-->>BE: Query result
+    BE-->>FE: Response
+    FE-->>U: Rendered page
+```
+
+Only the required communication paths are opened between tiers — no tier can be reached by skipping the one in front of it.
 
 ---
 
-## 🔐 Security Group Design
+## 🏗️ Terraform Architecture
 
-Security Groups allow only the traffic each layer actually needs.
-
-### 🌐 Frontend Security Group
-
-```text
-Inbound:
-  HTTP   → 80    (0.0.0.0/0)
-  HTTPS  → 443   (0.0.0.0/0)
+```mermaid
+flowchart TD
+    TF[Terraform] --> VPC[VPC]
+    TF --> SUB[Subnets]
+    TF --> IGW[Internet Gateway]
+    TF --> RT[Route Tables]
+    TF --> RTA[Route Table Associations]
+    TF --> SG[Security Groups]
+    TF --> EC2[EC2 Instances]
 ```
 
-### 🔒 Backend Security Group
-
-```text
-Inbound:
-  TCP → 8080
-  Source → Frontend Security Group
-```
-
-> 🚫 Avoid `0.0.0.0/0 → 8080` — the backend must never be directly reachable from the Internet.
-
-### 🔒 Database Security Group
-
-```text
-Inbound:
-  TCP → 3306
-  Source → Backend Security Group
-```
-
-> 🚫 Avoid `0.0.0.0/0 → 3306` — the database must never be publicly accessible.
-
----
-
-## 🛠️ Technologies Used
-
-<div align="left">
-
-![Terraform](https://img.shields.io/badge/Terraform-844FBA?style=flat-square&logo=terraform&logoColor=white)
-![AWS](https://img.shields.io/badge/AWS-FF9900?style=flat-square&logo=amazonaws&logoColor=white)
-![VPC](https://img.shields.io/badge/Amazon%20VPC-232F3E?style=flat-square&logo=amazonaws&logoColor=white)
-![EC2](https://img.shields.io/badge/Amazon%20EC2-FF9900?style=flat-square&logo=amazonec2&logoColor=white)
-![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=flat-square&logo=mysql&logoColor=white)
-![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat-square&logo=linux&logoColor=black)
-![Git](https://img.shields.io/badge/Git-F05032?style=flat-square&logo=git&logoColor=white)
-![GitHub](https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=github&logoColor=white)
-
-</div>
-
-- Amazon VPC, EC2, Security Groups, Subnets, Route Tables
-- Internet Gateway, NAT Gateway
-- Frontend Application, Backend Application, MySQL
-- Linux, Git & GitHub
-
----
-
-## 📂 Terraform Project Structure
+### Project Structure
 
 ```text
 terraform/
 │
 ├── main.tf
-├── providers.tf
 ├── variables.tf
 ├── outputs.tf
-├── terraform.tfvars
-├── README.md
-├── .gitignore
+├── provider.tf
 │
-└── module/
-    │
-    ├── vpc/
-    │   ├── main.tf
-    │   ├── variables.tf
-    │   └── outputs.tf
-    │
-    ├── security_group/
-    │   ├── main.tf
-    │   ├── variables.tf
-    │   └── outputs.tf
-    │
-    └── ec2/
-        ├── main.tf
-        ├── variables.tf
-        └── outputs.tf
+├── module/
+│   ├── vpc/
+│   │   ├── main.tf
+│   │   ├── variables.tf
+│   │   └── outputs.tf
+│   │
+│   ├── security_group/
+│   │   ├── main.tf
+│   │   ├── variables.tf
+│   │   └── outputs.tf
+│   │
+│   └── ec2/
+│       ├── main.tf
+│       ├── variables.tf
+│       └── outputs.tf
+│
+└── README.md
+```
+
+### Module Responsibilities
+
+<table>
+<tr><td>
+
+**VPC Module**
+- VPC
+- Public / private / database subnets
+- Internet Gateway
+- Route Tables & Associations
+
+</td><td>
+
+**Security Group Module**
+- Frontend SG
+- Backend SG
+- Database SG
+- Tier-to-tier rules
+
+</td><td>
+
+**EC2 Module**
+- Frontend / Backend / Database instances
+- AZ placement
+- Subnet placement
+- SG association
+
+</td></tr>
+</table>
+
+---
+
+## ⚙️ Terraform Configuration
+
+```hcl
+# Region
+aws_region = "ap-south-1"
+
+# VPC
+vpc_cidr = "10.0.0.0/16"
+
+# EC2
+ami_id        = "ami-01a00762f46d584a1"
+instance_type = "t3.medium"
+key_name      = "Dhadi"
 ```
 
 ---
 
-## ☁️ AWS Components
+## 🚀 Deploy Infrastructure
 
-| Layer | Component | Network |
-|---|---|---|
-| Frontend | EC2 / Application | Public Subnet |
-| Backend | EC2 / Application | Private Subnet |
-| Database | MySQL | Private Subnet |
-| Network | VPC | `10.0.0.0/16` |
-| Frontend | Port 80/443 | Internet → Frontend |
-| Backend | Port 8080 | Frontend → Backend |
-| Database | Port 3306 | Backend → Database |
-
----
-
-## 🚀 Terraform Deployment
+### 1️⃣ Clone the repository
 
 ```bash
-# Initialize Terraform
+git clone https://github.com/ajaydhadi95-gif/terraform-aws-modular-infrastructure.git
+cd terraform-aws-modular-infrastructure
+```
+
+### 2️⃣ Initialize Terraform
+
+```bash
 terraform init
+```
 
-# Format Terraform files
+### 3️⃣ Format the code
+
+```bash
 terraform fmt -recursive
+```
 
-# Validate configuration
+### 4️⃣ Validate the configuration
+
+```bash
 terraform validate
+```
 
-# Create Terraform plan
+```text
+Success! The configuration is valid.
+```
+
+### 5️⃣ Create an execution plan
+
+```bash
 terraform plan
+```
 
-# Deploy infrastructure
+The current plan creates **26 resources**, including:
+
+- 1 VPC
+- 6 Subnets
+- 1 Internet Gateway
+- 3 Route Tables
+- 6 Route Table Associations
+- 3 Security Groups
+- 6 EC2 Instances
+
+### 6️⃣ Apply the infrastructure
+
+```bash
 terraform apply
 ```
 
-Confirm with `yes` when prompted. ✅
-
----
-
-## 🔍 Verify Infrastructure
+Confirm with:
 
 ```text
-VPC
-│
-├── Public Subnet
-│   └── Frontend
-│
-├── Private Subnet
-│   └── Backend
-│
-├── Private Subnet
-│   └── Database
-│
-├── Internet Gateway
-├── NAT Gateway
-├── Route Tables
-└── Security Groups
+yes
 ```
 
-Or check via Terraform state:
+---
+
+## 🔧 Ansible Configuration
+
+Terraform provisions the infrastructure; **Ansible configures the EC2 servers**.
+
+```mermaid
+flowchart LR
+    TF[Terraform] --> EC2[EC2 Instances]
+    EC2 --> ANS[Ansible]
+    ANS --> FE[Frontend → Nginx]
+    ANS --> BE[Backend → App deps]
+    ANS --> DB[Database → MySQL]
+```
+
+**Example inventory:**
+
+```ini
+[frontend]
+frontend-ec2-1
+frontend-ec2-2
+
+[backend]
+backend-ec2-1
+backend-ec2-2
+
+[database]
+database-ec2-1
+database-ec2-2
+```
+
+---
+
+## 🗄️ MySQL Configuration
+
+MySQL runs directly on the Database EC2 instances. Ansible is used to:
+
+- ✅ Install MySQL
+- ✅ Start & enable the MySQL service
+- ✅ Create databases
+- ✅ Create database users
+- ✅ Configure permissions
+- ✅ Configure MySQL settings
+
+**Example task:**
+
+```yaml
+- name: Install MySQL
+  apt:
+    name: mysql-server
+    state: present
+    update_cache: yes
+```
+
+---
+
+## 🧩 Terraform + Ansible Workflow
+
+```mermaid
+flowchart TD
+    DEV[👨‍💻 Developer] --> GH[GitHub]
+    GH --> TF[Terraform]
+    TF --> INFRA[AWS Infrastructure]
+    INFRA --> NET[Network]
+    INFRA --> EC2[6 EC2 Instances]
+    NET --> ANS[Ansible]
+    EC2 --> ANS
+    ANS --> FE[Frontend: Nginx]
+    ANS --> BE[Backend: App]
+    ANS --> DB[Database: MySQL]
+```
+
+---
+
+## 🌍 Multi-AZ Design
+
+```mermaid
+flowchart TD
+    VPC[VPC] --> AZA[AZ-a: ap-south-1a]
+    VPC --> AZB[AZ-b: ap-south-1b]
+    AZA --> F1[Frontend-1]
+    AZA --> B1[Backend-1]
+    AZA --> D1[Database-1]
+    AZB --> F2[Frontend-2]
+    AZB --> B2[Backend-2]
+    AZB --> D2[Database-2]
+```
+
+**Benefits:**
+
+- ✅ Availability Zone separation
+- ✅ Fault isolation
+- ✅ Better foundation for scaling
+- ✅ Reduced dependency on a single AZ
+
+---
+
+## ⚠️ Database High Availability Note
+
+> **Heads up:** running two Database EC2 instances does **not** automatically provide MySQL replication or failover.
+
+For real database high availability, replication/failover must be configured separately. In a production environment, consider **Amazon RDS for MySQL with Multi-AZ** instead of self-managed EC2 databases.
+
+---
+
+## 🏭 Production Improvements
+
+This project is a **production-style learning architecture**. Before real production use, consider adding:
+
+| # | Improvement | Purpose |
+|---|---|---|
+| 1 | **Application Load Balancer** | Distribute traffic across frontend EC2 instances instead of hitting them directly |
+| 2 | **Auto Scaling Group** | Scale application servers automatically with demand |
+| 3 | **NAT Gateway** | Controlled outbound internet access for private instances |
+| 4 | **Amazon RDS (Multi-AZ)** | Managed, highly available database layer |
+| 5 | **AWS Systems Manager** | Replace direct SSH access with SSM Session Manager |
+| 6 | **AWS Secrets Manager** | Store DB credentials securely, out of app config |
+| 7 | **CloudWatch** | Metrics, logs, and alarms for operational visibility |
+| 8 | **Terraform Remote State** | Shared state with locking for team environments |
+| 9 | **HTTPS via ACM + Route 53** | Secure traffic end-to-end through the ALB |
+
+```mermaid
+flowchart LR
+    R53[Route 53] --> ALB[Application Load Balancer]
+    ALB -->|ACM Certificate| ASG[Auto Scaling Group]
+```
+
+---
+
+## 📊 Current Infrastructure Summary
+
+| Component | Quantity |
+|---|---:|
+| VPC | 1 |
+| Availability Zones | 2 |
+| Public Subnets | 2 |
+| Private Subnets | 2 |
+| Database Subnets | 2 |
+| Internet Gateway | 1 |
+| Route Tables | 3 |
+| Security Groups | 3 |
+| Frontend EC2 | 2 |
+| Backend EC2 | 2 |
+| Database EC2 | 2 |
+| **Total EC2** | **6** |
+
+---
+
+## 🎯 Learning Objectives
+
+This project demonstrates practical, hands-on knowledge of:
+
+- AWS VPC & CIDR planning
+- Multi-AZ architecture design
+- Public / private / database subnet segmentation
+- Route Tables & Internet Gateway
+- Security Groups (tier-to-tier)
+- EC2 provisioning at scale
+- Terraform modules, variables & outputs
+- Infrastructure as Code practices
+- Ansible configuration management
+- MySQL deployment
+- Tier-based application architecture
+- AWS security fundamentals
+- High availability concepts
+
+---
+
+## 🧪 Useful Terraform Commands
 
 ```bash
-terraform state list
+terraform init          # Initialize the working directory
+terraform fmt -recursive # Format all .tf files
+terraform validate      # Validate configuration syntax
+terraform plan          # Preview changes
+terraform apply         # Apply changes
+terraform destroy       # ⚠️ Tear down all managed resources
 ```
 
----
-
-## 🧹 Destroy Infrastructure
-
-```bash
-terraform destroy
-```
-
-Confirm with `yes` when prompted.
-
-> ⚠️ **Warning:** `terraform destroy` permanently removes all Terraform-managed AWS resources.
-
----
-
-## 🔒 Security Principles
-
-- 🌐 Frontend is publicly accessible
-- 🔒 Backend is isolated in a private subnet
-- 🔒 Database is isolated in a private subnet
-- 🔁 Backend accepts traffic **only** from the frontend layer
-- 🔁 Database accepts traffic **only** from the backend layer
-- 🚫 Port `3306` is never exposed to the Internet
-- 🚫 Port `8080` is never exposed to the Internet
-- 🛡️ Security Groups enforce least-privilege network access
-- 🔀 Private resources reach the Internet (for updates etc.) only via NAT Gateway
-
----
-
-## 📈 Production Improvements
-
-```text
-Internet
-   │
-   ▼
-Route 53
-   │
-   ▼
-Application Load Balancer
-   │
-   ▼
-Frontend / Web Tier
-   │
-   ▼
-Backend / Application Tier
-   │
-   ▼
-RDS MySQL
-```
-
-- [ ] Application Load Balancer
-- [ ] Auto Scaling Group
-- [ ] Multiple Availability Zones
-- [ ] Amazon RDS
-- [ ] Route 53
-- [ ] ACM SSL Certificate
-- [ ] CloudWatch + VPC Flow Logs
-- [ ] IAM Roles
-- [ ] NAT Gateway per AZ
-- [ ] S3 Terraform Remote Backend
-- [ ] CI/CD with Jenkins
-- [ ] Docker & Kubernetes / EKS
-
----
-
-## 🎯 Project Objectives
-
-- Understand AWS VPC networking
-- Implement public and private subnet architecture
-- Deploy a 3-tier application
-- Understand traffic flow between application layers
-- Configure Security Groups using least-privilege access
-- Provision infrastructure using Terraform
-- Use reusable Terraform modules
-- Practice production-style AWS architecture
-
----
-
-## 👨‍💻 Author
-
-<div align="center">
-
-**Ajay Dhadi**
-
-AWS | DevOps | Terraform | Linux | Docker | Kubernetes
-
-![AWS](https://img.shields.io/badge/AWS-FF9900?style=flat-square&logo=amazonaws&logoColor=white)
-![DevOps](https://img.shields.io/badge/DevOps-2496ED?style=flat-square&logo=docker&logoColor=white)
-![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?style=flat-square&logo=kubernetes&logoColor=white)
-
-</div>
+> **Warning:** `terraform destroy` permanently deletes all Terraform-managed AWS resources.
 
 ---
 
 ## 📌 Project Status
 
-**🚧 In Progress** — being developed as a Terraform-based **3-Tier AWS Application Architecture** with separate frontend, backend, and database network layers.
+- [x] AWS VPC
+- [x] Multi-AZ network
+- [x] Public subnets
+- [x] Private subnets
+- [x] Database subnets
+- [x] Internet Gateway
+- [x] Route Tables
+- [x] Security Groups
+- [x] Terraform Modules
+- [x] 6 EC2 architecture
+- [x] Terraform validation
+- [x] Terraform plan
+- [ ] MySQL configuration with Ansible
+- [ ] Backend application deployment
+- [ ] Frontend deployment
+- [ ] Application end-to-end testing
+- [ ] MySQL replication/failover
+- [ ] Application Load Balancer
+- [ ] Auto Scaling
+- [ ] RDS Multi-AZ
+
+---
+
+## 👨‍💻 Author
+
+**Ajay Dhadi**
+
+AWS · DevOps · Terraform · Ansible · Jenkins · Docker · Kubernetes
+
+[![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/ajaydhadi95-gif)
+
+---
+
+## ⭐ Conclusion
+
+```mermaid
+flowchart LR
+    A[Terraform] --> B[Infrastructure as Code]
+    B --> C[AWS Multi-AZ Infrastructure]
+    C --> D[EC2 Instances]
+    D --> E[Ansible]
+    E --> F[Server Configuration]
+    F --> G[Nginx / App / MySQL]
+    G --> H[Application Deployment]
+```
+
+This architecture provides a strong foundation for learning cloud infrastructure and can be extended toward a fully production-oriented AWS environment using **ALB, Auto Scaling, NAT Gateway, RDS Multi-AZ, CloudWatch, Secrets Manager, and CI/CD**.
 
 <div align="center">
 
-⭐ **If you find this project useful, consider giving it a star!** ⭐
+**⭐ If this project helped you, consider giving it a star! ⭐**
 
 </div>
