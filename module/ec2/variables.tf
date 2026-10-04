@@ -6,9 +6,27 @@ variable "instance_type" {
   type = string
 }
 
-variable "instance_name" {
+variable "key_name" {
   type = string
 }
+
+variable "public_subnet_1_id" {
+  type = string
+}
+
+
+
+variable "private_subnet_1_id" {
+  type = string
+}
+
+
+
+variable "database_subnet_1_id" {
+  type = string
+}
+
+
 
 variable "frontend_sg_id" {
   type = string
@@ -22,19 +40,10 @@ variable "database_sg_id" {
   type = string
 }
 
-variable "key_name" {
-  type    = string
-  default = "Dhadi"
-}
+variable "backend_iam_instance_profile" {
 
-variable "subnet_id" {
-  type = string
-}
+  description = "IAM instance profile for backend EC2 SSM access"
 
-variable "private_subnet_1_id" {
   type = string
-}
 
-variable "private_subnet_2_id" {
-  type = string
 }

@@ -1,64 +1,30 @@
-# ========================================
-# Frontend EC2 - Public Subnet
-# ========================================
-
-resource "aws_instance" "my_instance" {
-
-  ami           = var.ami_id
-  instance_type = var.instance_type
-  key_name      = var.key_name
-
-  subnet_id = var.subnet_id
-
-  vpc_security_group_ids = [
-    var.frontend_sg_id
-  ]
+resource "aws_instance" "frontend_ec2_1" {
+  ami                    = var.ami_id
+  instance_type          = var.instance_type
+  subnet_id              = var.public_subnet_1_id
+  vpc_security_group_ids = [var.frontend_sg_id]
+  key_name               = var.key_name
 
   tags = {
-    Name = var.instance_name
+    Name = "frontend-ec2-1"
+    Tier = "Frontend"
+    AZ   = "ap-south-1a"
   }
 }
 
 
-# ========================================
-# Backend EC2 - Private Subnet 1
-# ========================================
+resource "aws_instance" "backend_ec2_1" {
+  ami                    = var.ami_id
+  instance_type          = var.instance_type
+  subnet_id              = var.private_subnet_1_id
+  vpc_security_group_ids = [var.backend_sg_id]
+  key_name               = var.key_name
 
-resource "aws_instance" "private_ec2_1" {
-
-  ami           = var.ami_id
-  instance_type = var.instance_type
-  key_name      = var.key_name
-
-  subnet_id = var.private_subnet_1_id
-
-  vpc_security_group_ids = [
-    var.backend_sg_id
-  ]
+  iam_instance_profile = var.backend_iam_instance_profile
 
   tags = {
-    Name = "private-ec2-1-backend"
-  }
-}
-
-
-# ========================================
-# Database EC2 - Private Subnet 2
-# ========================================
-
-resource "aws_instance" "private_ec2_2" {
-
-  ami           = var.ami_id
-  instance_type = var.instance_type
-  key_name      = var.key_name
-
-  subnet_id = var.private_subnet_2_id
-
-  vpc_security_group_ids = [
-    var.database_sg_id
-  ]
-
-  tags = {
-    Name = "private-ec2-2-database"
+    Name = "backend-ec2-1"
+    Tier = "Backend"
+    AZ   = "ap-south-1a"
   }
 }

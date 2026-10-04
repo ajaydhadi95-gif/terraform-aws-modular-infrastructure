@@ -1,9 +1,13 @@
-output "instance_id" {
-  description = "EC2 instance ID"
-  value       = aws_instance.my_instance.id
+output "frontend_1_id" {
+  value = aws_instance.frontend_ec2_1.id
 }
 
-output "public_ip" {
-  description = "EC2 public IP"
-  value       = aws_instance.my_instance.public_ip
+
+output "backend_1_id" {
+  value = aws_instance.backend_ec2_1.id
 }
+
+
+
+
+

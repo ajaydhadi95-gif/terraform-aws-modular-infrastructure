@@ -1,33 +1,42 @@
-resource "aws_security_group" "frontend_sg" {
-  name        = "terraform-frontend-sg"
-  description = "Security group for frontend EC2"
+
+# Frontend Security Group
+
+
+resource "aws_security_group" "frontend" {
+  name        = var.frontend_security_group_name
+  description = var.frontend_security_group_description
   vpc_id      = var.vpc_id
 
+  # HTTP
   ingress {
-    description = "HTTP"
-    from_port   = 80
-    to_port     = 80
+    description = "Allow HTTP"
+    from_port   = var.frontend_http_port
+    to_port     = var.frontend_http_port
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  # HTTPS
   ingress {
-    description = "HTTPS"
-    from_port   = 443
-    to_port     = 443
+    description = "Allow HTTPS"
+    from_port   = var.frontend_https_port
+    to_port     = var.frontend_https_port
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  # SSH
   ingress {
-    description = "SSH"
-    from_port   = 22
-    to_port     = 22
+    description = "Allow SSH"
+    from_port   = var.ssh_port
+    to_port     = var.ssh_port
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = var.ssh_cidr
   }
 
+  # Outbound
   egress {
+    description = "Allow all outbound traffic"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
@@ -35,33 +44,33 @@ resource "aws_security_group" "frontend_sg" {
   }
 
   tags = {
-    Name = "terraform-frontend-sg"
+    Name = var.frontend_security_group_name
   }
 }
 
 
-resource "aws_security_group" "backend_sg" {
-  name        = "terraform-backend-sg"
-  description = "Security group for backend EC2"
+
+# Backend Security Group
+
+
+resource "aws_security_group" "backend" {
+  name        = var.backend_security_group_name
+  description = var.backend_security_group_description
   vpc_id      = var.vpc_id
 
+  # Backend receives traffic from Frontend SG
   ingress {
-    description     = "Backend from Frontend"
-    from_port       = 8080
-    to_port         = 8080
+    description     = "Allow backend traffic from frontend"
+    from_port       = var.backend_port
+    to_port         = var.backend_port
     protocol        = "tcp"
-    security_groups = [aws_security_group.frontend_sg.id]
+    security_groups = [aws_security_group.frontend.id]
   }
 
-  ingress {
-    description = "SSH"
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
 
+  # Outbound
   egress {
+    description = "Allow all outbound traffic"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
@@ -69,33 +78,32 @@ resource "aws_security_group" "backend_sg" {
   }
 
   tags = {
-    Name = "terraform-backend-sg"
+    Name = var.backend_security_group_name
   }
 }
 
 
-resource "aws_security_group" "database_sg" {
-  name        = "terraform-database-sg"
-  description = "Security group for database EC2"
+
+# RDS Security Group
+
+
+resource "aws_security_group" "rds" {
+  name        = var.rds_security_group_name
+  description = var.rds_security_group_description
   vpc_id      = var.vpc_id
 
+  # MySQL only from Backend SG
   ingress {
-    description     = "MySQL from Backend"
-    from_port       = 3306
-    to_port         = 3306
+    description     = "Allow MySQL from backend"
+    from_port       = var.sql_port
+    to_port         = var.sql_port
     protocol        = "tcp"
-    security_groups = [aws_security_group.backend_sg.id]
+    security_groups = [aws_security_group.backend.id]
   }
 
-  ingress {
-    description = "SSH"
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
+  # Outbound
   egress {
+    description = "Allow all outbound traffic"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
@@ -103,6 +111,6 @@ resource "aws_security_group" "database_sg" {
   }
 
   tags = {
-    Name = "terraform-database-sg"
+    Name = var.rds_security_group_name
   }
 }

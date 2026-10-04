@@ -27,3 +27,18 @@ variable "vpc_name" {
   type    = string
   default = "devops-vpc"
 }
+
+variable "key_name" {
+  description = "AWS EC2 key pair name"
+  type        = string
+  default     = "Dhadi"
+}
+variable "db_username" {
+  type      = string
+  sensitive = true
+}
+
+variable "db_password" {
+  type      = string
+  sensitive = true
+}
