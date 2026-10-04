@@ -21,6 +21,10 @@
 
 ---
 
+
+<img width="960" height="585" alt="architecture" src="https://github.com/user-attachments/assets/24fe4839-ae6d-45b8-bbe0-9aae9c3008e3" />
+
+
 ## Table of Contents
 
 - [Overview](#overview)
@@ -283,10 +287,7 @@ This repository is a solid **learning and portfolio baseline**. Before using it 
 
 ---
 
-## Author
 
-**Your Name**
-[GitHub](https://github.com/<your-username>) · [LinkedIn](https://www.linkedin.com/in/<your-profile>)
 
 If this project helped you, consider giving it a ⭐
 
