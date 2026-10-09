@@ -1,298 +1,457 @@
-<div align="center">
+# AWS DevOps Infrastructure
 
-# AWS Three-Tier Architecture with Terraform
+## Live AWS Infrastructure Diagram
 
-**A secure, modular, production-style three-tier infrastructure on AWS, provisioned entirely with Terraform.**
+This project uses Terraform to provision AWS infrastructure in the `ap-south-1` region.
 
-![Terraform](https://img.shields.io/badge/Terraform-IaC-7B42BC?style=for-the-badge&logo=terraform&logoColor=white)
-![AWS](https://img.shields.io/badge/AWS-ap--south--1-FF9900?style=for-the-badge&logo=amazonaws&logoColor=white)
-![EC2](https://img.shields.io/badge/EC2-t3.medium-ED7100?style=for-the-badge&logo=amazonec2&logoColor=white)
-![RDS](https://img.shields.io/badge/RDS-MySQL%208.0-527FFF?style=for-the-badge&logo=amazonrds&logoColor=white)
-![SSM](https://img.shields.io/badge/Systems%20Manager-Session%20Manager-E7157B?style=for-the-badge&logo=amazonaws&logoColor=white)
-![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
+### Architecture Diagram
 
-<br/>
+[**Open Animated AWS Infrastructure Diagram**](./index.html)
 
-<img src="docs/architecture.gif" alt="Animated AWS three-tier architecture: request, response and DevOps access flow" width="900"/>
+### Architecture Components
 
-<sub>Animated walkthrough: user request (blue) → response (green) → DevOps access through SSM (purple / pink)</sub>
+* Amazon VPC and subnets
+* Amazon EKS and Kubernetes workloads
+* AWS Load Balancer
+* Jenkins EC2 for CI/CD
+* NAT Gateway for outbound internet access
+* Amazon RDS MySQL in private subnets
+
+### Region
+
+`ap-south-1` (Mumbai)
+
+### Infrastructure as Code
+
+Terraform
+
+
+# ✈️ FlightFinder Frontend — CI/CD on Amazon EKS
+
+**React + Vite frontend, built by Jenkins, packaged with Docker, stored on Docker Hub and served from Amazon EKS behind an AWS LoadBalancer.**
+
+![AWS](https://img.shields.io/badge/AWS-EKS-FF9900?logo=amazonaws&logoColor=white)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-Deployment%20%2B%20Service-326CE5?logo=kubernetes&logoColor=white)
+![Jenkins](https://img.shields.io/badge/Jenkins-CI%2FCD-D24939?logo=jenkins&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Multi--stage-2496ED?logo=docker&logoColor=white)
+![Nginx](https://img.shields.io/badge/Nginx-Alpine-009639?logo=nginx&logoColor=white)
+![React](https://img.shields.io/badge/React-Vite-61DAFB?logo=react&logoColor=black)
+![Region](https://img.shields.io/badge/Region-ap--south--1-232F3E?logo=amazonaws&logoColor=white)
+
+<img src="docs/images/user-flow.gif" alt="Live user flow: browser to ELB to Service to Pod and back" width="900"/>
+
+<sub>👆 Live user flow — a visitor's request travelling to the Pod and the response coming back.</sub>
 
 </div>
 
 ---
 
+## 📑 Table of Contents
 
-<img width="960" height="585" alt="architecture" src="https://github.com/user-attachments/assets/24fe4839-ae6d-45b8-bbe0-9aae9c3008e3" />
-
-
-## Table of Contents
-
-- [Overview](#overview)
-- [Architecture](#architecture)
-- [Traffic Flow](#traffic-flow)
-- [Administrative Access (No SSH)](#administrative-access-no-ssh)
-- [Security Design](#security-design)
-- [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
-- [Getting Started](#getting-started)
-- [Connecting to the Backend with SSM](#connecting-to-the-backend-with-ssm)
-- [Terraform Outputs](#terraform-outputs)
-- [Cost Awareness](#cost-awareness)
-- [Cleanup](#cleanup)
-- [Known Limitations and Roadmap](#known-limitations-and-roadmap)
-- [Author](#author)
+1. [Overview](#-overview)
+2. [User Flow (how users come and go)](#-user-flow-how-users-come-and-go)
+3. [CI/CD Flow](#-cicd-flow)
+4. [Architecture](#-architecture)
+5. [Tech Stack](#-tech-stack)
+6. [Project Configuration](#-project-configuration)
+7. [Repository Structure](#-repository-structure)
+8. [Prerequisites](#-prerequisites)
+9. [Setup Guide](#-setup-guide)
+10. [Jenkins Pipeline Stages](#-jenkins-pipeline-stages)
+11. [Deployment Commands](#-deployment-commands)
+12. [Verify the Deployment](#-verify-the-deployment)
+13. [Troubleshooting](#-troubleshooting)
+14. [Security Notes](#-security-notes)
+15. [Roadmap](#-roadmap)
+16. [Author](#-author)
 
 ---
 
-## Overview
+## 🔎 Overview
 
-This project provisions a complete **three-tier web application infrastructure** on AWS using **Terraform modules**.
+This project automatically deploys the **FlightFinder** React/Vite frontend to **Amazon EKS**.
 
-| Tier | Component | Location | Exposure |
-|---|---|---|---|
-| Presentation | Frontend EC2 (`t3.medium`) | Public subnet | Internet (HTTP / HTTPS) |
-| Application | Backend EC2 (`t3.medium`) | Private subnet | Frontend only (port 8080) |
-| Data | RDS MySQL 8.0 (`db.t3.micro`) | Private DB subnets (2 AZs) | Backend only (port 3306) |
-
-**Highlights**
-
-- Network isolation with a dedicated **VPC**, public, private and database subnets, and separate route tables
-- **Security-group chaining**: Internet → Frontend → Backend → RDS (no CIDR-based access between tiers)
-- **No public IP and no SSH** on the backend; administration happens through **AWS Systems Manager Session Manager**
-- **NAT Gateway** for outbound-only internet access from the private tier
-- **RDS** is private, encrypted at rest, and has automated backups enabled
-- Fully reproducible with `terraform init && terraform apply`
+| Tool | Role |
+|------|------|
+| **GitHub** | Stores the source code and `Jenkinsfile` |
+| **Jenkins (on EC2)** | Runs the automated build and deploy pipeline |
+| **Docker** | Packages the app into a multi-stage image (Node build → Nginx runtime) |
+| **Docker Hub** | Stores the built image |
+| **Amazon EKS** | Runs the containers using Kubernetes |
+| **AWS LoadBalancer** | Gives users an external entry point |
+| **Browser** | Where the user opens the website |
 
 ---
 
-## Architecture
+## 🌐 User Flow (how users come and go)
 
 <div align="center">
-  <img src="docs/architecture.png" alt="AWS three-tier architecture diagram" width="900"/>
+<img src="docs/images/user-flow.gif" alt="User flow animation" width="900"/>
 </div>
 
-### Components
+**Request path (user comes in):**
 
-| Resource | Details |
-|---|---|
-| **VPC** | `10.0.0.0/16`, region `ap-south-1` |
-| **Public subnet** | `10.0.1.0/24` (`ap-south-1a`), auto-assigns public IPs |
-| **Private subnet** | `10.0.11.0/24` (`ap-south-1a`), no public IPs |
-| **DB subnets** | `10.0.21.0/24` (`ap-south-1a`) and `10.0.22.0/24` (`ap-south-1b`) |
-| **Internet Gateway** | Internet entry and exit for the public subnet |
-| **NAT Gateway + Elastic IP** | Outbound internet for the private subnet |
-| **Route tables** | Public → IGW, Private → NAT, Database → local only |
-| **Frontend EC2** | Public tier, ports 80 and 443 |
-| **Backend EC2** | Private tier, port 8080 from the frontend security group, SSM instance profile attached |
-| **RDS MySQL 8.0** | `db.t3.micro`, 20 GB `gp3`, database `bookingdb`, encrypted, 7-day backups, `publicly_accessible = false` |
-| **IAM** | Role with `AmazonSSMManagedInstanceCore` and an instance profile |
+1. The user opens the LoadBalancer URL in the browser → `HTTP GET /`
+2. The **AWS ELB** forwards the traffic to a healthy EKS worker node
+3. The **Kubernetes Service** (`booking-frontend-service`, port `80`) picks a Ready Pod
+4. **Nginx** inside the Pod serves the built Vite files from `dist/`
 
----
+**Response path (user gets the page):**
 
-## Traffic Flow
+5. Nginx returns `index.html` + JS/CSS (`200 OK`)
+6. The response goes back through the Service and the ELB
+7. The browser renders the React UI
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor U as User
-    participant IGW as Internet Gateway
-    participant FE as Frontend EC2 (public)
-    participant BE as Backend EC2 (private)
-    participant DB as RDS MySQL (private)
-
-    U->>IGW: HTTPS request
-    IGW->>FE: 80 / 443
-    FE->>BE: API call on 8080
-    BE->>DB: SQL query on 3306
-    DB-->>BE: Result set
-    BE-->>FE: JSON response
-    FE-->>IGW: Page / API response
-    IGW-->>U: 200 OK
+    actor U as User Browser
+    participant E as AWS ELB
+    participant S as K8s Service :80
+    participant P as Pod (Nginx)
+    U->>E: GET http://<ELB_HOSTNAME>/
+    E->>S: Forward to worker node
+    S->>P: Route to a Ready Pod
+    P-->>S: 200 OK (index.html, JS, CSS)
+    S-->>E: Response
+    E-->>U: Response
+    Note over U: Browser renders the React/Vite app
 ```
-
-| Step | From → To | Port | Allowed by |
-|---|---|---|---|
-| 1-2 | Internet → Frontend | 80, 443 | Frontend SG (`0.0.0.0/0`) |
-| 3 | Frontend → Backend | 8080 | Backend SG (source: Frontend SG) |
-| 4 | Backend → RDS | 3306 | RDS SG (source: Backend SG) |
-| 5-8 | Response path | - | Security groups are stateful, no extra rules needed |
 
 ---
 
-## Administrative Access (No SSH)
+## 🔁 CI/CD Flow
 
-The backend has **no public IP and port 22 is closed**. DevOps engineers connect with **AWS Systems Manager Session Manager**:
+<div align="center">
+<img src="docs/images/cicd-flow.gif" alt="CI/CD flow animation" width="900"/>
+</div>
 
 ```mermaid
 flowchart LR
-    A[Backend SSM Agent] -- "outbound HTTPS 443" --> B[NAT Gateway]
-    B --> C[Internet Gateway]
-    C --> D[AWS Systems Manager]
-    E[DevOps engineer<br/>IAM identity] -- "start-session" --> D
-    D -. "session over existing channel" .-> A
+    A[👨‍💻 Developer<br/>git push main] --> B[GitHub<br/>Repo + Jenkinsfile]
+    B --> C[Jenkins on EC2<br/>job: frontend]
+    C --> D[Docker Build<br/>npm ci + vite build]
+    D --> E[Docker Hub<br/>booking_frontend:BUILD_NUMBER]
+    E --> F[Amazon EKS<br/>devops-eks]
+    F --> G[LoadBalancer Service]
+    G --> H[🌍 Users]
 ```
 
-1. The SSM agent on the backend opens an **outbound** HTTPS connection through the NAT Gateway.
-2. The engineer authenticates with **IAM** and starts a session.
-3. SSM relays the session over that existing connection. **No inbound port, bastion host or SSH key is required**, and every session can be logged for audit.
+> ⚠️ A push to GitHub starts the pipeline **only if** a webhook or polling trigger is configured. See the [Roadmap](#-roadmap).
 
 ---
 
-## Security Design
+## 🏗️ Architecture
 
-- **Least-privilege network access**: each tier accepts traffic only from the tier directly above it, referenced by security group ID.
-- **Private data tier**: RDS has no public endpoint, sits in subnets with no internet route, and accepts connections only from the backend security group.
-- **Encryption at rest** is enabled on RDS (`storage_encrypted = true`).
-- **Automated backups** are retained for 7 days.
-- **Keyless administration** through SSM Session Manager instead of SSH.
-- **Outbound-only internet** for the private tier through NAT.
+```mermaid
+flowchart TB
+    subgraph Internet
+        U[User Browser]
+    end
+    subgraph AWS["AWS · ap-south-1"]
+        ELB[AWS LoadBalancer]
+        subgraph EKS["EKS cluster: devops-eks"]
+            SVC[Service<br/>booking-frontend-service :80]
+            subgraph Node1[Worker Node]
+                P1[Pod<br/>booking-frontend]
+            end
+        end
+        JK[Jenkins on EC2<br/>IAM role: terraform-ssm-role]
+    end
+    DH[(Docker Hub<br/>ajaydhadi95/booking_frontend)]
+    GH[(GitHub<br/>FlightFinder-Application_frontend)]
+
+    U --> ELB --> SVC --> P1
+    GH --> JK
+    JK -- docker push --> DH
+    JK -- kubectl apply --> EKS
+    DH -- image pull --> P1
+```
 
 ---
 
-## Tech Stack
+## 🧰 Tech Stack
 
-| Category | Tools |
-|---|---|
-| Infrastructure as Code | Terraform (modular) |
-| Cloud | AWS (VPC, EC2, RDS, IAM, NAT, IGW, Systems Manager) |
-| Database | MySQL 8.0 |
-| Region | `ap-south-1` (Mumbai) |
+- **Frontend:** React, Vite, Node.js 22
+- **Web server:** Nginx (Alpine)
+- **Containerization:** Docker (multi-stage build)
+- **CI/CD:** Jenkins (Pipeline script from SCM)
+- **Registry:** Docker Hub
+- **Orchestration:** Kubernetes on Amazon EKS
+- **Cloud:** AWS (EC2, IAM, EKS, ELB) in `ap-south-1`
 
 ---
 
-## Project Structure
+## ⚙️ Project Configuration
 
-> Adjust this tree to match your repository layout.
+| Component | Value |
+|-----------|-------|
+| AWS Region | `ap-south-1` |
+| Jenkins job | `frontend` |
+| Jenkins workspace | `/var/lib/jenkins/workspace/frontend` |
+| GitHub repository | `FlightFinder-Application_frontend` |
+| Git branch | `main` |
+| EKS cluster | `devops-eks` |
+| Docker Hub image | `ajaydhadi95/booking_frontend:<BUILD_NUMBER>` |
+| Kubernetes Deployment | `booking-frontend` |
+| Kubernetes Service | `booking-frontend-service` |
+| Service type / port | `LoadBalancer` / `80` |
+| Jenkins IAM role | `terraform-ssm-role` |
+
+---
+
+## 📂 Repository Structure
 
 ```text
-.
-├── main.tf                 # Root module wiring all child modules
-├── variables.tf
-├── outputs.tf
-├── providers.tf
-├── terraform.tfvars        # Local values (do not commit secrets)
-├── docs/
-│   ├── architecture.gif    # Animated walkthrough
-│   └── architecture.png    # Static diagram
-└── modules/
-    ├── vpc/                # VPC, subnets, IGW, NAT, EIP, route tables
-    ├── security_group/     # Frontend, backend and RDS security groups
-    ├── iam/                # SSM role, policy attachment, instance profile
-    ├── ec2/                # Frontend and backend instances
-    └── rds/                # DB subnet group and MySQL instance
+FlightFinder-Application_frontend/
+├── Jenkinsfile          # CI/CD pipeline definition
+├── Dockerfile           # Multi-stage build (Node → Nginx)
+├── nginx.conf           # Nginx config for serving the SPA
+├── package.json         # Dependencies and scripts
+├── src/                 # React/Vite source code
+├── README.md
+└── docs/
+    └── images/
+        ├── user-flow.gif    # Animated user request/response flow
+        └── cicd-flow.gif    # Animated CI/CD flow
 ```
 
 ---
 
-## Getting Started
+## ✅ Prerequisites
 
-### Prerequisites
-
-- [Terraform](https://developer.hashicorp.com/terraform/install) `>= 1.5`
-- [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) configured (`aws configure`)
-- An AWS account with permissions for VPC, EC2, RDS and IAM
-- [Session Manager plugin](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html) for the AWS CLI
-
-### Deploy
+On the **Jenkins EC2 instance**:
 
 ```bash
-# 1. Clone the repository
-git clone https://github.com/<your-username>/<your-repo>.git
-cd <your-repo>
-
-# 2. Provide your values (never commit real passwords)
-cp terraform.tfvars.example terraform.tfvars
-
-# 3. Initialise, review and apply
-terraform init
-terraform plan -out=tfplan
-terraform apply tfplan
+git --version
+docker --version
+aws --version
+kubectl version --client
+java -version
 ```
 
-A successful plan reports **26 resources to add**.
+Also required:
 
-> **Tip:** use `terraform plan -out=tfplan` and then `terraform apply tfplan` so that Terraform applies exactly the plan you reviewed.
+- Jenkins credential `dockerhub-credentials` (username + access token)
+- An IAM role on the EC2 instance that can call the EKS APIs
+- Kubernetes access for the Jenkins user inside the cluster (IAM and Kubernetes permissions are **separate**)
 
 ---
 
-## Connecting to the Backend with SSM
+## 🚀 Setup Guide
 
-Check that the instance is registered:
+### 1. Confirm AWS identity and cluster status
 
 ```bash
-aws ssm describe-instance-information --region ap-south-1
+aws sts get-caller-identity
+
+aws eks describe-cluster \
+  --region ap-south-1 \
+  --name devops-eks \
+  --query "cluster.status" \
+  --output text        # expected: ACTIVE
 ```
 
-Open a shell on the private backend:
+### 2. Create the kubeconfig
 
 ```bash
-aws ssm start-session --target <backend-instance-id> --region ap-south-1
+aws eks update-kubeconfig \
+  --region ap-south-1 \
+  --name devops-eks
 ```
 
-Optional: reach the private database from your laptop through a port-forwarding tunnel:
+### 3. Give the `jenkins` Linux user its own kubeconfig
+
+Jenkins runs jobs as the `jenkins` user, not as `ubuntu`.
 
 ```bash
-aws ssm start-session \
-  --target <backend-instance-id> \
-  --document-name AWS-StartPortForwardingSessionToRemoteHost \
-  --parameters '{"host":["<rds-endpoint>"],"portNumber":["3306"],"localPortNumber":["3306"]}'
+sudo mkdir -p /var/lib/jenkins/.kube
+
+sudo cp /home/ubuntu/.kube/config \
+  /var/lib/jenkins/.kube/config
+
+sudo chown -R jenkins:jenkins /var/lib/jenkins/.kube
+sudo chmod 700 /var/lib/jenkins/.kube
+sudo chmod 600 /var/lib/jenkins/.kube/config
 ```
 
-You can also connect from the console: **EC2 → Instances → Connect → Session Manager**.
-
----
-
-## Terraform Outputs
-
-| Output | Description |
-|---|---|
-| `vpc_id` | ID of the VPC |
-| `vpc_cidr` | VPC CIDR block (`10.0.0.0/16`) |
-| `frontend_1_id` | Frontend EC2 instance ID |
-| `backend_1_id` | Backend EC2 instance ID (use with SSM) |
-| `frontend_sg_id` | Frontend security group ID |
-| `backend_sg_id` | Backend security group ID |
-| `database_sg_id` | RDS security group ID |
-| `rds_endpoint` | MySQL endpoint for the application |
-
----
-
-## Cost Awareness
-
-This stack creates billable resources: **NAT Gateway (hourly + data processing)**, **two `t3.medium` instances**, an **Elastic IP**, and an **RDS instance**. Review the [AWS Pricing Calculator](https://calculator.aws/) before applying, and destroy the environment when you are not using it.
-
----
-
-## Cleanup
+Test it as the Jenkins user:
 
 ```bash
-terraform destroy
+sudo -u jenkins env KUBECONFIG=/var/lib/jenkins/.kube/config kubectl get nodes
+sudo -u jenkins env KUBECONFIG=/var/lib/jenkins/.kube/config kubectl get pods -A
+```
+
+Both worker nodes should show `Ready`.
+
+### 4. Create the Jenkins job
+
+- Type: **Pipeline**
+- Definition: **Pipeline script from SCM**
+- Repository: `FlightFinder-Application_frontend`
+- Branch: `main`
+- Script path: `Jenkinsfile`
+
+---
+
+## 🧪 Jenkins Pipeline Stages
+
+| # | Stage | Purpose |
+|---|-------|---------|
+| 1 | **Checkout** | `checkout scm` — get code from the same repo the job uses |
+| 2 | **Verify Project** | `test -f package.json`, `Dockerfile`, `nginx.conf` |
+| 3 | **Build Docker Image** | `docker build -t ajaydhadi95/booking_frontend:$BUILD_NUMBER .` |
+| 4 | **Push Image to Docker Hub** | Login with stored credentials, `docker push`, `docker logout` |
+| 5 | **Connect to EKS** | Configure and test cluster access |
+| 6 | **Deploy to EKS** | Create/update the Deployment and Service, wait for rollout |
+
+Secure Docker Hub login used in the pipeline:
+
+```groovy
+withCredentials([
+    usernamePassword(
+        credentialsId: 'dockerhub-credentials',
+        usernameVariable: 'DOCKERHUB_USER',
+        passwordVariable: 'DOCKERHUB_TOKEN'
+    )
+]) {
+    sh '''
+        echo "$DOCKERHUB_TOKEN" | docker login \
+          -u "$DOCKERHUB_USER" \
+          --password-stdin
+
+        docker push ${IMAGE_NAME}:${IMAGE_TAG}
+
+        docker logout
+    '''
+}
 ```
 
 ---
 
-## Known Limitations and Roadmap
+## ☸️ Deployment Commands
 
-This repository is a solid **learning and portfolio baseline**. Before using it for real production traffic, plan for the following.
+**Create or update the Deployment**
 
-- [ ] Restrict or remove the frontend **SSH (port 22)** rule and attach the SSM instance profile to the frontend as well
-- [ ] Enforce **IMDSv2** on both instances (`http_tokens = "required"`)
-- [ ] Add an **Application Load Balancer** with an ACM certificate (HTTPS) and move EC2 to private subnets
-- [ ] Deploy across **multiple Availability Zones** with Auto Scaling groups
-- [ ] Enable **RDS Multi-AZ**, deletion protection and a final snapshot
-- [ ] Store DB credentials in **AWS Secrets Manager** (`manage_master_user_password`) or SSM Parameter Store
-- [ ] Set `enable_dns_hostnames = true` on the VPC and consider **VPC endpoints** for SSM
-- [ ] Use a **remote Terraform backend** (S3 + DynamoDB locking) and separate dev / stage / prod environments
-- [ ] Add **CloudWatch alarms**, VPC Flow Logs and a CI/CD pipeline (`terraform fmt`, `validate`, `plan` on pull requests)
+```bash
+kubectl create deployment booking-frontend \
+  --image=ajaydhadi95/booking_frontend:<TAG> \
+  --dry-run=client -o yaml | kubectl apply -f -
+```
+
+**Update the image** (the container name on the left must match the *actual container name*, not just the Deployment name)
+
+```bash
+kubectl get deployment booking-frontend \
+  -o jsonpath='{.spec.template.spec.containers[0].name}'
+
+kubectl set image deployment/booking-frontend \
+  <CONTAINER_NAME>=ajaydhadi95/booking_frontend:<TAG>
+```
+
+**Wait for the rollout**
+
+```bash
+kubectl rollout status deployment/booking-frontend --timeout=180s
+```
+
+**Expose through a LoadBalancer**
+
+```bash
+kubectl expose deployment booking-frontend \
+  --name=booking-frontend-service \
+  --type=LoadBalancer \
+  --port=80 \
+  --target-port=80 \
+  --dry-run=client -o yaml | kubectl apply -f -
+```
 
 ---
 
+## 🔍 Verify the Deployment
 
+```bash
+kubectl get nodes
+kubectl get deployments
+kubectl get pods -o wide
+kubectl get svc booking-frontend-service
+kubectl get svc booking-frontend-service -w     # watch until EXTERNAL-IP is assigned
+```
 
-If this project helped you, consider giving it a ⭐
+Healthy output looks like:
+
+| Check | Expected |
+|-------|----------|
+| Nodes | `Ready` |
+| Pod | `1/1  Running` |
+| Service | `TYPE: LoadBalancer` with an `EXTERNAL-IP` hostname |
+
+Finally, open it in your browser:
+
+```text
+http://<ELB_HOSTNAME>
+```
+
+> The hostname being assigned does not guarantee the site is reachable yet. **The browser test is the final check**, including any API-dependent features.
+
+---
+
+## 🛠️ Troubleshooting
+
+| Problem | What to check / fix |
+|---------|---------------------|
+| Jenkins can't reach Kubernetes | Make sure `/var/lib/jenkins/.kube/config` exists and is owned by `jenkins` |
+| AWS auth errors | `aws sts get-caller-identity` — verify the EC2 IAM role |
+| `Project files verified` fails | Confirm `package.json`, `Dockerfile`, `nginx.conf` exist and the right repo is checked out |
+| `error: unable to find container named "booking-frontend"` | Deployment name ≠ container name. Read it with the `jsonpath` command above |
+| Image can't be pulled | Confirm the push succeeded (`digest: sha256:...`) and the tag matches |
+| Docker credentials warning | Security warning about `/var/lib/jenkins/.docker/config.json`, **not** a failed push |
+| Site not loading | Wait for ELB provisioning, then check `kubectl get svc` and `kubectl describe svc booking-frontend-service` |
+
+Useful debugging commands:
+
+```bash
+kubectl describe pod <POD_NAME>
+kubectl logs deployment/booking-frontend
+kubectl logs deployment/booking-frontend --previous
+kubectl describe deployment booking-frontend
+kubectl describe svc booking-frontend-service
+```
+
+---
+
+## 🔐 Security Notes
+
+- Never commit Docker Hub passwords/tokens — use Jenkins credentials (`withCredentials`).
+- Use `--password-stdin` for `docker login`, and `docker logout` after the push.
+- Keep kubeconfig permissions strict (`700` directory, `600` file).
+- Restrict the Jenkins port (`8080`) in the EC2 security group to trusted IPs.
+- Use least-privilege IAM and Kubernetes RBAC for the Jenkins role.
+- Don't publish real Jenkins IPs or LoadBalancer hostnames in a public README.
+
+---
+
+## 🗺️ Roadmap
+
+- [ ] GitHub webhook trigger so a `git push` starts the pipeline automatically
+- [ ] HTTPS with ACM + Ingress (AWS Load Balancer Controller) and a custom domain
+- [ ] Replace `latest`-style manual tagging with immutable tags + automatic rollback on failed rollout
+- [ ] Add readiness/liveness probes and resource requests/limits
+- [ ] Horizontal Pod Autoscaler for traffic spikes
+- [ ] Move manifests into versioned YAML / Helm chart
+
+---
+
+## 👤 Author
+
+**Ajay Dhadi** — AWS · DevOps · Cloud · Infrastructure as Code
+
+GitHub: [@ajaydhadi95-gif](https://github.com/ajaydhadi95-gif)
 
 ---
 
 <div align="center">
-<sub>Built with Terraform on AWS</sub>
+
+⭐ If this runbook helped you, give the repo a star!
+
 </div>
