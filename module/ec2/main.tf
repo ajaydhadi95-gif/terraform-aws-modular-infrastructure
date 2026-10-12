@@ -1,30 +1,14 @@
-resource "aws_instance" "frontend_ec2_1" {
+resource "aws_instance" "deployment_jenkins_ec2" {
   ami                    = var.ami_id
   instance_type          = var.instance_type
   subnet_id              = var.public_subnet_1_id
-  vpc_security_group_ids = [var.frontend_sg_id]
+  vpc_security_group_ids = [var.jenkins_security_group_id]
   key_name               = var.key_name
+  iam_instance_profile   = var.iam_instance_profile_name
 
   tags = {
-    Name = "frontend-ec2-1"
-    Tier = "Frontend"
-    AZ   = "ap-south-1a"
-  }
-}
-
-
-resource "aws_instance" "backend_ec2_1" {
-  ami                    = var.ami_id
-  instance_type          = var.instance_type
-  subnet_id              = var.private_subnet_1_id
-  vpc_security_group_ids = [var.backend_sg_id]
-  key_name               = var.key_name
-
-  iam_instance_profile = var.backend_iam_instance_profile
-
-  tags = {
-    Name = "backend-ec2-1"
-    Tier = "Backend"
+    Name = "deployment-Jenkins-ec2"
+    Tier = "Deployment"
     AZ   = "ap-south-1a"
   }
 }

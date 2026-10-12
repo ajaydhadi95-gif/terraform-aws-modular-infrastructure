@@ -1,3 +1,4 @@
+
 variable "ami_id" {
   type = string
 }
@@ -6,44 +7,22 @@ variable "instance_type" {
   type = string
 }
 
-variable "key_name" {
-  type = string
-}
-
 variable "public_subnet_1_id" {
   type = string
 }
 
+variable "jenkins_security_group_id" {
+  description = "Jenkins EC2 Security Group ID"
+  type        = string
+}
 
-
-variable "private_subnet_1_id" {
+variable "key_name" {
   type = string
 }
 
-
-
-variable "database_subnet_1_id" {
-  type = string
+variable "iam_instance_profile_name" {
+  description = "IAM instance profile attached to Jenkins EC2"
+  type        = string
 }
 
 
-
-variable "frontend_sg_id" {
-  type = string
-}
-
-variable "backend_sg_id" {
-  type = string
-}
-
-variable "database_sg_id" {
-  type = string
-}
-
-variable "backend_iam_instance_profile" {
-
-  description = "IAM instance profile for backend EC2 SSM access"
-
-  type = string
-
-}

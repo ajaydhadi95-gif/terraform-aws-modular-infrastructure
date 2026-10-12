@@ -1,77 +1,117 @@
 variable "vpc_id" {
-  type = string
+  description = "VPC ID where security groups will be created"
+  type        = string
 }
 
-# -------------------------
-# Frontend Security Group
-# -------------------------
+# =========================================================
+# EKS CLUSTER SECURITY GROUP
+# =========================================================
 
-variable "frontend_security_group_name" {
-  type    = string
-  default = "terraform-frontend-sg"
+variable "eks_cluster_security_group_name" {
+  description = "Security group name for EKS cluster"
+  type        = string
+  default     = "terraform-eks-cluster-sg"
 }
 
-variable "frontend_security_group_description" {
-  type    = string
-  default = "Security group for frontend EC2"
-}
-
-variable "frontend_http_port" {
-  type    = number
-  default = 80
-}
-
-variable "frontend_https_port" {
-  type    = number
-  default = 443
-}
-
-variable "ssh_port" {
-  type    = number
-  default = 22
-}
-
-variable "ssh_cidr" {
-  type    = list(string)
-  default = ["0.0.0.0/0"]
+variable "eks_cluster_security_group_description" {
+  description = "Security group for EKS control plane"
+  type        = string
+  default     = "Security group for EKS control plane"
 }
 
 
-# -------------------------
-# Backend Security Group
-# -------------------------
+# =========================================================
+# EKS NODE SECURITY GROUP
+# =========================================================
 
-variable "backend_security_group_name" {
-  type    = string
-  default = "terraform-backend-sg"
+variable "eks_node_security_group_name" {
+  description = "Security group name for EKS worker nodes"
+  type        = string
+  default     = "terraform-eks-node-sg"
 }
 
-variable "backend_security_group_description" {
-  type    = string
-  default = "Security group for backend EC2"
+variable "eks_node_security_group_description" {
+  description = "Security group for EKS worker nodes"
+  type        = string
+  default     = "Security group for EKS worker nodes"
+}
+
+
+# =========================================================
+# APPLICATION PORTS
+# =========================================================
+
+variable "http_port" {
+  description = "HTTP application port"
+  type        = number
+  default     = 80
+}
+
+variable "https_port" {
+  description = "HTTPS application port"
+  type        = number
+  default     = 443
 }
 
 variable "backend_port" {
-  type    = number
-  default = 8080
+  description = "Backend application port"
+  type        = number
+  default     = 8080
 }
 
 
-# -------------------------
-# RDS Security Group
-# -------------------------
+# =========================================================
+# RDS SECURITY GROUP
+# =========================================================
 
 variable "rds_security_group_name" {
-  type    = string
-  default = "terraform-rds-sg"
+  description = "Security group name for RDS"
+  type        = string
+  default     = "terraform-rds-sg"
 }
 
 variable "rds_security_group_description" {
-  type    = string
-  default = "Security group for RDS MySQL"
+  description = "Security group for RDS MySQL"
+  type        = string
+  default     = "Security group for RDS MySQL"
 }
 
 variable "sql_port" {
-  type    = number
-  default = 3306
+  description = "MySQL port"
+  type        = number
+  default     = 3306
 }
+# =========================================================
+# JENKINS SECURITY GROUP
+# =========================================================
+
+variable "jenkins_security_group_name" {
+  description = "Security group name for Jenkins EC2"
+  type        = string
+  default     = "terraform-jenkins-sg"
+}
+
+variable "jenkins_security_group_description" {
+  description = "Security group description for Jenkins EC2"
+  type        = string
+  default     = "Security group for Jenkins CI/CD server"
+}
+
+variable "ssh_port" {
+  description = "SSH port for Jenkins EC2"
+  type        = number
+  default     = 22
+}
+
+variable "jenkins_port" {
+  description = "Jenkins web UI port"
+  type        = number
+  default     = 8080
+}
+
+variable "jenkins_allowed_cidr" {
+  description = "Allowed IP for Jenkins SSH and web access"
+  type        = string
+  default     = "0.0.0.0/0"
+}
+
