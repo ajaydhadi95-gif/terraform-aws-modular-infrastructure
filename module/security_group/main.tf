@@ -242,3 +242,19 @@ resource "aws_vpc_security_group_ingress_rule" "jenkins_web" {
   to_port           = var.jenkins_port
   description       = "Allow Jenkins web UI"
 }
+
+
+# =========================================================
+# JENKINS EC2 -> RDS MYSQL
+# =========================================================
+
+resource "aws_vpc_security_group_ingress_rule" "rds_mysql_from_jenkins" {
+  security_group_id            = aws_security_group.rds.id
+  referenced_security_group_id = aws_security_group.jenkins.id
+
+  ip_protocol = "tcp"
+  from_port   = var.sql_port
+  to_port     = var.sql_port
+
+  description = "Allow MySQL from Jenkins EC2"
+}
