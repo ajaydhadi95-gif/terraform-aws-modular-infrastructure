@@ -69,30 +69,6 @@ This project builds the complete infrastructure for a containerised booking appl
 <img width="2400" height="1725" alt="aws-architecture (1)" src="https://github.com/user-attachments/assets/f821d49a-df24-46ec-bf75-07fa38300f41" />
 
 
-
-
-### Request / response flow
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor U as User
-    participant LB as AWS Load Balancer
-    participant FE as React + Nginx (Pod)
-    participant BE as Spring Boot (Pod :8080)
-    participant DB as RDS MySQL (:3306)
-
-    U->>LB: HTTP request
-    LB->>FE: Forward to node port
-    FE-->>U: Static React app (HTML/JS/CSS)
-    U->>FE: API call (e.g. /api/bookings)
-    FE->>BE: Proxy to backend service
-    BE->>DB: SQL query (bookingdb)
-    DB-->>BE: Result set
-    BE-->>FE: JSON response
-    FE-->>U: Rendered result
-```
-
 ---
 
 ## 🔄 CI/CD Pipeline
