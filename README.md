@@ -66,60 +66,8 @@ This project builds the complete infrastructure for a containerised booking appl
 
 ## 🏗 Architecture
 
-```mermaid
-flowchart TB
-    User(["👤 User / Browser"])
-    Dev(["👨‍💻 Developer"])
-    GH["GitHub<br/>frontend + backend repos"]
-    DH[("Docker Hub<br/>booking images")]
+![Uploading 819e3db8-e685-43e7-8563-0e778a953f89.png…]()
 
-    subgraph AWS["☁️ AWS Cloud — ap-south-1"]
-        IGW["Internet Gateway<br/>terraform-vpc-igw"]
-
-        subgraph VPC["VPC devops-vpc — 10.0.0.0/16"]
-
-            subgraph PUB["Public Subnet 10.0.1.0/24 — ap-south-1a"]
-                JENKINS["Jenkins EC2<br/>deployment-Jenkins-ec2<br/>t3.medium"]
-                NAT["NAT Gateway<br/>+ Elastic IP"]
-            end
-
-            subgraph PRIV["Private Subnets — 10.0.11.0/24 (1a) · 10.0.12.0/24 (1b)"]
-                CP["EKS Control Plane<br/>devops-eks v1.34"]
-                subgraph NODES["Managed Node Group — Ubuntu 24.04 · t3.medium · 2-3 nodes"]
-                    FE["Frontend Pod<br/>React + Nginx :80"]
-                    BE["Backend Pod<br/>Spring Boot :8080"]
-                end
-            end
-
-            subgraph DB["Database Subnets — 10.0.21.0/24 (1a) · 10.0.22.0/24 (1b)"]
-                RDS[("RDS MySQL 8.0<br/>bookingdb :3306")]
-            end
-        end
-    end
-
-    User -->|HTTP 80 / HTTPS 443| LB{{"LoadBalancer Service<br/>booking-frontend-service"}}
-    LB --> FE
-    FE -->|REST API| BE
-    BE -->|JDBC 3306| RDS
-
-    Dev -->|git push| GH
-    GH -->|Webhook / Poll SCM| JENKINS
-    JENKINS -->|docker push| DH
-    JENKINS -->|kubectl apply<br/>EKS access entry| CP
-    DH -.->|image pull via NAT| NODES
-    NODES -.->|outbound| NAT
-    NAT --> IGW
-    CP --- NODES
-
-    classDef aws fill:#FF9900,stroke:#232F3E,color:#232F3E;
-    classDef k8s fill:#326CE5,stroke:#1a3d8f,color:#fff;
-    classDef db fill:#4479A1,stroke:#2b4d66,color:#fff;
-    classDef ci fill:#D24939,stroke:#7a2218,color:#fff;
-    class JENKINS ci;
-    class FE,BE,CP k8s;
-    class RDS db;
-    class NAT,IGW aws;
-```
 
 ### Request / response flow
 
