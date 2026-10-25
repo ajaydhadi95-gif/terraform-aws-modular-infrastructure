@@ -66,7 +66,8 @@ This project builds the complete infrastructure for a containerised booking appl
 
 ## 🏗 Architecture
 
-![Uploading 819e3db8-e685-43e7-8563-0e778a953f89.png…]()
+<img width="2400" height="1762" alt="aws-architecture" src="https://github.com/user-attachments/assets/964703ef-c9c7-4556-bcd3-12c039bc3b02" />
+
 
 
 ### Request / response flow
